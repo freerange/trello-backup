@@ -1,3 +1,5 @@
+print 'Loading environment...'
+
 require 'rubygems'
 require 'bundler/setup'
 
@@ -8,6 +10,8 @@ require 'dropbox_sdk'
 require 'date'
 
 Dotenv.load
+
+puts 'OK'
 
 endpoint = "https://api.trello.com/1/boards/#{ENV['TRELLO_BOARD_ID']}"
 uri = Addressable::URI.parse(endpoint)
@@ -29,7 +33,7 @@ response = RestClient.get(uri.to_s)
 json = response.body
 puts 'OK'
 
-print 'Writing data to Dropbox'
+print 'Writing data to Dropbox...'
 client = DropboxClient.new(ENV['DROPBOX_ACCESS_TOKEN'])
 client.put_file("/#{Date.today}-trello.json", json)
 puts 'OK'
