@@ -1,3 +1,5 @@
+require 'bundler/setup'
+
 require 'dotenv'
 require 'addressable/uri'
 require 'restclient'
