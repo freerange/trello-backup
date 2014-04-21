@@ -1,4 +1,6 @@
-puts 'Loading environment...'
+STDOUT.sync = true
+
+print 'Loading environment...'
 
 require 'rubygems'
 require 'bundler/setup'
@@ -28,12 +30,12 @@ uri.query_values = {
   :token => ENV['TRELLO_TOKEN']
 }
 
-puts 'Fetching Trello data for board...'
+print 'Fetching Trello data for board...'
 response = RestClient.get(uri.to_s)
 json = response.body
 puts 'OK'
 
-puts 'Writing data to Dropbox...'
+print 'Writing data to Dropbox...'
 client = DropboxClient.new(ENV['DROPBOX_ACCESS_TOKEN'])
 client.put_file("/#{Date.today}-trello.json", json)
 puts 'OK'
