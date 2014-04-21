@@ -23,8 +23,13 @@ uri.query_values = {
   :key => ENV['TRELLO_KEY'],
   :token => ENV['TRELLO_TOKEN']
 }
+
+print 'Fetching Trello data for board...'
 response = RestClient.get(uri.to_s)
 json = response.body
+puts 'OK'
 
+print 'Writing data to Dropbox'
 client = DropboxClient.new(ENV['DROPBOX_ACCESS_TOKEN'])
 client.put_file("/#{Date.today}-trello.json", json)
+puts 'OK'
