@@ -26,6 +26,7 @@ uri.query_values = {
   :member_fields => :all,
   :checklists => :all,
   :fields => :all,
+  :card_attachments => true,
   :key => ENV['TRELLO_KEY'],
   :token => ENV['TRELLO_TOKEN']
 }
