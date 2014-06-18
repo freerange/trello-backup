@@ -1,6 +1,10 @@
+require 'logger'
+logger = Logger.new(STDOUT)
+logger.formatter = Logger::Formatter.new
+
 STDOUT.sync = true
 
-print 'Loading environment...'
+logger.info 'Loading environment...'
 
 require 'rubygems'
 require 'bundler/setup'
@@ -13,7 +17,7 @@ require 'date'
 
 Dotenv.load
 
-puts 'OK'
+logger.info 'OK'
 
 endpoint = "https://api.trello.com/1/boards/#{ENV['TRELLO_BOARD_ID']}"
 uri = Addressable::URI.parse(endpoint)
@@ -31,12 +35,12 @@ uri.query_values = {
   :token => ENV['TRELLO_TOKEN']
 }
 
-print 'Fetching Trello data for board...'
+logger.info 'Fetching Trello data for board...'
 response = RestClient.get(uri.to_s)
 json = response.body
-puts 'OK'
+logger.info 'OK'
 
-print 'Writing data to Dropbox...'
+logger.info 'Writing data to Dropbox...'
 client = DropboxClient.new(ENV['DROPBOX_ACCESS_TOKEN'])
 client.put_file("/#{Date.today}-trello.json", json)
-puts 'OK'
+logger.info 'OK'
