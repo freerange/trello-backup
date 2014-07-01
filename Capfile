@@ -3,7 +3,8 @@ require 'recap/recipes/ruby'
 set :application, 'trello_backup'
 set :repository, 'https://github.com/freerange/trello_backup'
 
-server 'gofreerange.com', :app
+server 'badger.gofreerange.com', :app
+
 
 set :whenever_command, 'bundle exec whenever'
 set(:whenever_identifier)   { application }
