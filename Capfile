@@ -2,7 +2,7 @@ require 'recap/recipes/ruby'
 
 set :application, 'trello_backup'
 set :repository, 'https://github.com/freerange/trello_backup'
-set :branch, 'migrating-to-another-server'
+
 server 'badger.gofreerange.com', :app
 
 
