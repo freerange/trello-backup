@@ -39,8 +39,8 @@ boards.each do |board|
     :checklists => :all,
     :fields => :all,
     :card_attachments => true,
-    :key => ENV['TRELLO_KEY'],
-    :token => ENV['TRELLO_TOKEN']
+    :key => ENV.fetch('TRELLO_KEY'),
+    :token => ENV.fetch('TRELLO_TOKEN')
   }
 
   logger.info 'Fetching Trello data for board...'
