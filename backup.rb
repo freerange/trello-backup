@@ -14,33 +14,45 @@ require 'addressable/uri'
 require 'restclient'
 require 'dropbox_sdk'
 require 'date'
+require 'trello'
 
 Dotenv.load
 
 logger.info 'OK'
 
-endpoint = "https://api.trello.com/1/boards/#{ENV['TRELLO_BOARD_ID']}"
-uri = Addressable::URI.parse(endpoint)
-uri.query_values = {
-  :actions => :all,
-  :actions_limit => 1000,
-  :cards => :all,
-  :lists => :all,
-  :members => :all,
-  :member_fields => :all,
-  :checklists => :all,
-  :fields => :all,
-  :card_attachments => true,
-  :key => ENV['TRELLO_KEY'],
-  :token => ENV['TRELLO_TOKEN']
-}
+Trello.configure do |config|
+  config.developer_public_key = ENV.fetch('TRELLO_KEY')
+  config.member_token = ENV.fetch('TRELLO_TOKEN')
+end
 
-logger.info 'Fetching Trello data for board...'
-response = RestClient.get(uri.to_s)
-json = response.body
-logger.info 'OK'
+boards = Trello::Board.all.reject { |b| b.name[/Welcome Board/] }
+boards.each do |board|
+  endpoint = "https://api.trello.com/1/boards/#{board.id}"
+  uri = Addressable::URI.parse(endpoint)
+  uri.query_values = {
+    :actions => :all,
+    :actions_limit => 1000,
+    :cards => :all,
+    :lists => :all,
+    :members => :all,
+    :member_fields => :all,
+    :checklists => :all,
+    :fields => :all,
+    :card_attachments => true,
+    :key => ENV['TRELLO_KEY'],
+    :token => ENV['TRELLO_TOKEN']
+  }
 
-logger.info 'Writing data to Dropbox...'
-client = DropboxClient.new(ENV['DROPBOX_ACCESS_TOKEN'])
-client.put_file("/#{Date.today}-trello.json", json)
-logger.info 'OK'
+  logger.info 'Fetching Trello data for board...'
+  response = RestClient.get(uri.to_s)
+  json = response.body
+  logger.info 'OK'
+
+  logger.info 'Writing data to Dropbox...'
+  client = DropboxClient.new(ENV['DROPBOX_ACCESS_TOKEN'])
+  filename = "/#{Date.today}-#{board.name.downcase.gsub(/ /, '-')}-trello.json"
+  p filename
+  puts json
+  client.put_file(filename, json)
+  logger.info 'OK'
+end
