@@ -1,18 +1,6 @@
-We use this script to regularly backup our GFR Trello board to Dropbox.
+We use this script to regularly backup all our GFR Trello boards to Dropbox.
 
 ## Generating/storing the tokens you need to use this script
-
-### Getting the ID of the Trello board you wish to back up
-
-    $ open https://trello.com
-    # Navigate to the board you want to backup and copy the board ID from the URL
-    # The structure of the URL should be trello.com/b/<board-ID>/<board-name>
-
-    # Temporarily store the Trello board ID in an environment variable
-    $ export TRELLO_BOARD_ID=`pbpaste`
-
-    # Store the Trello board ID in .env
-    $ echo "TRELLO_BOARD_ID=$TRELLO_BOARD_ID" >> .env
 
 ### Getting the Trello API key
 
@@ -76,7 +64,6 @@ Assuming you've followed the instructions above and got all the tokens stored in
 
 I'm going to assume you've already got these environment variables configured in your local .env.
 
-    $ cap env:set TRELLO_BOARD_ID=`grep TRELLO_BOARD_ID .env | cut -d"=" -f2`
     $ cap env:set TRELLO_KEY=`grep TRELLO_KEY .env | cut -d"=" -f2`
     $ cap env:set TRELLO_TOKEN=`grep TRELLO_TOKEN .env | cut -d"=" -f2`
     $ cap env:set DROPBOX_ACCESS_TOKEN=`grep DROPBOX_ACCESS_TOKEN .env | cut -d"=" -f2`
