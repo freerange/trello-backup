@@ -43,14 +43,14 @@ boards.each do |board|
     :token => ENV.fetch('TRELLO_TOKEN')
   }
 
-  logger.info 'Fetching Trello data for board...'
+  logger.info "#{board.id} - Fetching Trello data for board..."
   response = RestClient.get(uri.to_s)
   json = response.body
-  logger.info 'OK'
+  logger.info "#{board.id} - OK"
 
-  logger.info 'Writing data to Dropbox...'
+  logger.info "#{board.id} - Writing data to Dropbox..."
   client = DropboxClient.new(ENV['DROPBOX_ACCESS_TOKEN'])
   filename = "/#{Date.today}-#{board.name.downcase.gsub(/ /, '-')}-trello.json"
   client.put_file(filename, json)
-  logger.info 'OK'
+  logger.info "#{board.id} - OK"
 end
