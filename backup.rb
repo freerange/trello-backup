@@ -43,7 +43,7 @@ boards.each do |board|
     :token => ENV.fetch('TRELLO_TOKEN')
   }
 
-  logger.info "#{board.id} - Fetching Trello data for board..."
+  logger.info "#{board.id} - Fetching Trello data for #{board.name} board..."
   response = RestClient.get(uri.to_s)
   json = response.body
   logger.info "#{board.id} - OK"
