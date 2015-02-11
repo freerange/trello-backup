@@ -32,6 +32,8 @@ Ensure you're logged in as the GFR Admin user. It's safe to run do this step mul
 
 ### Getting a token to allow this app to write to Dropbox
 
+Ensure you're logged in as the GFR Admin user.
+
     $ open "https://www.dropbox.com/developers/apps"
 
     # Navigate to "Trello Backup"
