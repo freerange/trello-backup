@@ -1,5 +1,7 @@
 source "https://rubygems.org"
 
+ruby '2.1.9'
+
 gem "dotenv"
 gem "addressable"
 gem "rest-client"
