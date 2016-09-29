@@ -71,3 +71,9 @@ DEPENDENCIES
   rest-client
   ruby-trello
   whenever
+
+RUBY VERSION
+   ruby 2.2.5p319
+
+BUNDLED WITH
+   1.13.1
