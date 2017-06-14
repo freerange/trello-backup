@@ -50,7 +50,7 @@ boards.each do |board|
 
   logger.info "#{board.id} - Writing data to Dropbox..."
   client = DropboxClient.new(ENV['DROPBOX_ACCESS_TOKEN'])
-  filename = "/#{Date.today}-#{board.name.downcase.gsub(/ /, '-')}-trello.json"
+  filename = "/#{Date.today}-#{board.name.downcase.gsub(/[^\w]/, '-').squeeze('-')}-trello.json"
   client.put_file(filename, json)
   logger.info "#{board.id} - OK"
 end
