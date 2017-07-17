@@ -12,7 +12,7 @@ require 'bundler/setup'
 require 'dotenv'
 require 'addressable/uri'
 require 'restclient'
-require 'dropbox_sdk'
+require 'dropbox'
 require 'date'
 require 'trello'
 
@@ -49,8 +49,8 @@ boards.each do |board|
   logger.info "#{board.id} - OK"
 
   logger.info "#{board.id} - Writing data to Dropbox..."
-  client = DropboxClient.new(ENV['DROPBOX_ACCESS_TOKEN'])
+  client = Dropbox::Client.new(ENV['DROPBOX_ACCESS_TOKEN'])
   filename = "/#{Date.today}-#{board.name.downcase.gsub(/[^\w]/, '-').squeeze('-')}-trello.json"
-  client.put_file(filename, json)
+  client.upload(filename, json)
   logger.info "#{board.id} - OK"
 end
