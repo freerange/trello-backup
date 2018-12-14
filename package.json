@@ -1,0 +1,8 @@
+{
+  "name": "trello_backup",
+  "version": "1.0.0",
+  "description": "Backup Trello boards to S3",
+  "main": "index.js",
+  "author": "Go Free Range Ltd",
+  "license": "ISC"
+}
