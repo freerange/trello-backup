@@ -4,5 +4,8 @@
   "description": "Backup Trello boards to S3",
   "main": "index.js",
   "author": "Go Free Range Ltd",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "^3.2.2"
+  }
 }
