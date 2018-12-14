@@ -9,6 +9,7 @@
   "author": "Go Free Range Ltd",
   "license": "ISC",
   "dependencies": {
+    "aws-cdk": "^0.20.0",
     "typescript": "^3.2.2"
   }
 }
