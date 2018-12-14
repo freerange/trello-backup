@@ -1,0 +1,4 @@
+class TrelloBackupStack {
+}
+
+new TrelloBackupStack();

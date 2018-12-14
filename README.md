@@ -6,3 +6,7 @@
 ## Setup
 
     npm ci
+
+## Build
+
+    npm run build

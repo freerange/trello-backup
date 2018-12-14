@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Backup Trello boards to S3",
   "main": "index.js",
+  "scripts": {
+    "build": "tsc"
+  },
   "author": "Go Free Range Ltd",
   "license": "ISC",
   "dependencies": {
