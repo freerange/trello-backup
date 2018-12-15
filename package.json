@@ -4,7 +4,8 @@
   "description": "Backup Trello boards to S3",
   "main": "index.js",
   "scripts": {
-    "build": "tsc"
+    "buildLambdaFunctions": "cd lambdaFunctions && ./build.sh",
+    "build": "tsc && npm run buildLambdaFunctions"
   },
   "author": "Go Free Range Ltd",
   "license": "ISC",
