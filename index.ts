@@ -19,7 +19,15 @@ class TrelloBackupStack extends cdk.Stack {
       timeout: 30
     });
 
+    const backupTrelloBoard = new lambda.Function(this, 'backupTrelloBoard', {
+      runtime: new lambda.Runtime('ruby2.5'),
+      handler: 'index.handler',
+      code: lambda.Code.asset('./lambdaFunctions/backupTrelloBoard'),
+      timeout: 30
+    });
+
     backupTrelloBoardTopic.grantPublish(enumerateTrelloBoards.role);
+    backupTrelloBoardTopic.subscribeLambda(backupTrelloBoard);
 
     const dailyAt2am = 'cron(0 2 * * ? *)';
     const dailyAt2amRule = new events.EventRule(this, 'DailyAt2amRule', {
