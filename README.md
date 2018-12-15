@@ -19,6 +19,34 @@ command-line tool. See [Configuring the AWS CDK Toolkit][1] for details.
 to setup a named profile and then use the `--profile <aws-profile-name>` option
 with the `cdk` command-line tool to select the relevant AWS profile.
 
+### Getting a Trello API key
+
+Ensure you're logged in as the GFR Admin user.
+
+    $ open "https://trello.com/1/appKey/generate"
+    # Copy the Key (under Developer API Keys) to the clipboard
+
+    # Temporarily store the Trello API key in an environment variable
+    $ export TRELLO_KEY=`pbpaste`
+
+    # Store the Trello API key in .env
+    $ echo "TRELLO_KEY=$TRELLO_KEY" >> lambdaFunctions/enumerateTrelloBoards/.env
+
+### Getting a Trello API token
+
+Ensure you're logged in as the GFR Admin user on https://trello.com. It's safe to run do this step multiple times as you'll get the same token back even if it's already been generated.
+
+    $ open "https://trello.com/1/connect?key=$TRELLO_KEY&name=gfr-trello-backup&expiration=never&response_type=token"
+    # Allow the gfr-trello-backup app to read our Trello account
+
+    # Copy the token from the resulting page
+
+    # Temporarily store the Trello token in an environment variable
+    $ export TRELLO_TOKEN=`pbpaste`
+
+    # Store the Trello token in .env
+    $ echo "TRELLO_TOKEN=$TRELLO_TOKEN" >> lambdaFunctions/enumerateTrelloBoards/.env
+
 ## Build
 
     npm run build
