@@ -31,6 +31,7 @@ Ensure you're logged in as the GFR Admin user.
 
     # Store the Trello API key in .env
     $ echo "TRELLO_KEY=$TRELLO_KEY" >> lambdaFunctions/enumerateTrelloBoards/.env
+    $ echo "TRELLO_KEY=$TRELLO_KEY" >> lambdaFunctions/backupTrelloBoard/.env
 
 ### Getting a Trello API token
 
@@ -46,6 +47,7 @@ Ensure you're logged in as the GFR Admin user on https://trello.com. It's safe t
 
     # Store the Trello token in .env
     $ echo "TRELLO_TOKEN=$TRELLO_TOKEN" >> lambdaFunctions/enumerateTrelloBoards/.env
+    $ echo "TRELLO_TOKEN=$TRELLO_TOKEN" >> lambdaFunctions/backupTrelloBoard/.env
 
 ## Build
 
