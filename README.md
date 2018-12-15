@@ -36,5 +36,9 @@ there is no need to specify this unless you want to override that value.
 * `node_modules/.bin` must be in your `PATH` environment variable in order to
 be able to run the `cdk` command-line tool.
 
+* When a stack uses assets (e.g. via a call to `aws-lambda.Code.asset()`),
+before using the `cdk` command-line tool to deploy to an AWS environment for
+the first time, the environment must be bootstrapped using: `cdk bootstrap`.
+
 [1]: https://awslabs.github.io/aws-cdk/getting-started.html#configuring-the-cdk-toolkit
 [2]: https://awslabs.github.io/aws-cdk/tools.html#command-line-toolkit-cdk
