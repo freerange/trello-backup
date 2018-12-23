@@ -10,7 +10,7 @@ class TrelloBackupStack extends cdk.Stack {
 
     const backupTrelloBoardTopic = new Topic(this, 'backupTrelloBoardTopic');
 
-    const enumerateTrelloBoards = new lambda.Function(this, 'enumerateTrelloBoards', {
+    const enumerateTrelloBoardsFunction = new lambda.Function(this, 'enumerateTrelloBoards', {
       runtime: new lambda.Runtime('ruby2.5'),
       handler: 'index.handler',
       code: lambda.Code.asset('./lambdaFunctions/enumerateTrelloBoards'),
@@ -25,7 +25,7 @@ class TrelloBackupStack extends cdk.Stack {
       versioned: true
     });
 
-    const backupTrelloBoard = new lambda.Function(this, 'backupTrelloBoard', {
+    const backupTrelloBoardFunction = new lambda.Function(this, 'backupTrelloBoard', {
       runtime: new lambda.Runtime('ruby2.5'),
       handler: 'index.handler',
       code: lambda.Code.asset('./lambdaFunctions/backupTrelloBoard'),
@@ -35,16 +35,16 @@ class TrelloBackupStack extends cdk.Stack {
       timeout: 30
     });
 
-    trelloBoardBackupsBucket.grantPut(backupTrelloBoard.role);
+    trelloBoardBackupsBucket.grantPut(backupTrelloBoardFunction.role);
 
-    backupTrelloBoardTopic.grantPublish(enumerateTrelloBoards.role);
-    backupTrelloBoardTopic.subscribeLambda(backupTrelloBoard);
+    backupTrelloBoardTopic.grantPublish(enumerateTrelloBoardsFunction.role);
+    backupTrelloBoardTopic.subscribeLambda(backupTrelloBoardFunction);
 
     const dailyAt2am = 'cron(0 2 * * ? *)';
     const dailyAt2amRule = new events.EventRule(this, 'DailyAt2amRule', {
        scheduleExpression: dailyAt2am,
     });
-    dailyAt2amRule.addTarget(enumerateTrelloBoards);
+    dailyAt2amRule.addTarget(enumerateTrelloBoardsFunction);
   }
 }
 
