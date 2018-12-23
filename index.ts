@@ -43,7 +43,7 @@ class TrelloBackupStack extends cdk.Stack {
 
   createTrelloBoardBackupsBucket() : s3.Bucket {
     return new s3.Bucket(this, 'trelloBoardBackupsBucket', {
-      bucketName: 'trello-board-backups.gofreerange.com',
+      bucketName: process.env.TRELLO_BOARD_BACKUPS_BUCKET_NAME,
       versioned: true
     });
   }
