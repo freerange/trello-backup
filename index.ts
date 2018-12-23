@@ -42,14 +42,7 @@ class TrelloBackupStack extends cdk.Stack {
       timeout: 30
     });
     backupTrelloBoardTopic.grantPublish(lambdaFunction.role);
-
-    const metricErrors = lambdaFunction.metricErrors();
-    const alarm = metricErrors.newAlarm(this, 'enumerateTrelloBoardsAlarm', {
-      threshold: 1,
-      evaluationPeriods: 1
-    });
-    alarm.onAlarm(alarmTopic);
-
+    this.reportErrors(lambdaFunction, alarmTopic);
     return lambdaFunction;
   }
 
@@ -71,14 +64,7 @@ class TrelloBackupStack extends cdk.Stack {
       timeout: 30
     });
     trelloBoardBackupsBucket.grantPut(lambdaFunction.role);
-
-    const metricErrors = lambdaFunction.metricErrors();
-    const alarm = metricErrors.newAlarm(this, 'backupTrelloBoardAlarm', {
-      threshold: 1,
-      evaluationPeriods: 1
-    });
-    alarm.onAlarm(alarmTopic);
-
+    this.reportErrors(lambdaFunction, alarmTopic);
     return lambdaFunction;
   }
 
@@ -88,6 +74,15 @@ class TrelloBackupStack extends cdk.Stack {
        scheduleExpression: dailyAt2am,
     });
     dailyAt2amRule.addTarget(lambdaFunction);
+  }
+
+  reportErrors(lambdaFunction : lambda.Function, alarmTopic : Topic) : void {
+    const metricErrors = lambdaFunction.metricErrors();
+    const alarm = metricErrors.newAlarm(this, `${lambdaFunction.id}Alarm`, {
+      threshold: 1,
+      evaluationPeriods: 1
+    });
+    alarm.onAlarm(alarmTopic);
   }
 }
 
