@@ -8,6 +8,7 @@ import dotenv = require('dotenv');
 dotenv.config();
 
 const rubyLambdaRuntime = new lambda.Runtime('ruby2.5');
+const lambdaFunctionTimeout = 30;
 
 class TrelloBackupStack extends cdk.Stack {
   constructor(parent: cdk.App, id: string, props?: cdk.StackProps) {
@@ -43,7 +44,7 @@ class TrelloBackupStack extends cdk.Stack {
       environment: {
         BACKUP_TRELLO_BOARD_TOPIC_ARN: backupTrelloBoardTopic.topicArn
       },
-      timeout: 30
+      timeout: lambdaFunctionTimeout
     });
     backupTrelloBoardTopic.grantPublish(lambdaFunction.role);
     this.reportErrors(lambdaFunction, alarmTopic);
@@ -65,7 +66,7 @@ class TrelloBackupStack extends cdk.Stack {
       environment: {
         BACKUP_TRELLO_BOARD_S3_BUCKET_NAME: trelloBoardBackupsBucket.bucketName
       },
-      timeout: 30
+      timeout: lambdaFunctionTimeout
     });
     trelloBoardBackupsBucket.grantPut(lambdaFunction.role);
     this.reportErrors(lambdaFunction, alarmTopic);
