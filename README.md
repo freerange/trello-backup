@@ -53,6 +53,7 @@ Ensure you're logged in as the GFR Admin user on https://trello.com. It's safe t
 
 In the top-level `.env` file, set the following environment variables:
 
+* `TRELLO_BOARD_BACKUPS_SCHEDULE_EXPRESSION` - specifies how often the backup is performed, e.g. "cron(0 2 * * ? *)" runs daily at 2am (see [Schedule Expressions for Rules][3] for details)
 * `TRELLO_BOARD_BACKUPS_BUCKET_NAME` - the name of the S3 bucket you want to be created and used to save backups
 * `TRELLO_BOARD_BACKUPS_ALARM_EMAIL_ADDRESS` - the email address where alarm emails will be sent (an email will be sent on deployment to ask you to confirm the subscription)
 
@@ -79,3 +80,4 @@ the first time, the environment must be bootstrapped using: `cdk bootstrap`.
 
 [1]: https://awslabs.github.io/aws-cdk/getting-started.html#configuring-the-cdk-toolkit
 [2]: https://awslabs.github.io/aws-cdk/tools.html#command-line-toolkit-cdk
+[3]: https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html

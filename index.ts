@@ -28,7 +28,8 @@ class TrelloBackupStack extends cdk.Stack {
     const alarmEmailAddress = process.env.TRELLO_BOARD_BACKUPS_ALARM_EMAIL_ADDRESS;
     alarmTopic.subscribeEmail('alarmTopicEmail', alarmEmailAddress);
 
-    this.scheduleDailyAt2am(enumerateTrelloBoardsFunction);
+    const scheduleExpression = process.env.TRELLO_BOARD_BACKUPS_SCHEDULE_EXPRESSION;
+    this.schedule(enumerateTrelloBoardsFunction, scheduleExpression);
   }
 
   createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic : Topic, alarmTopic : Topic) : lambda.Function {
@@ -68,12 +69,11 @@ class TrelloBackupStack extends cdk.Stack {
     return lambdaFunction;
   }
 
-  scheduleDailyAt2am(lambdaFunction : lambda.Function) : void {
-    const dailyAt2am = 'cron(0 2 * * ? *)';
-    const dailyAt2amRule = new events.EventRule(this, 'DailyAt2amRule', {
-       scheduleExpression: dailyAt2am,
+  schedule(lambdaFunction : lambda.Function, scheduleExpression : string) : void {
+    const rule = new events.EventRule(this, 'ScheduleExpressionRule', {
+       scheduleExpression: scheduleExpression,
     });
-    dailyAt2amRule.addTarget(lambdaFunction);
+    rule.addTarget(lambdaFunction);
   }
 
   reportErrors(lambdaFunction : lambda.Function, alarmTopic : Topic) : void {
