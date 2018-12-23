@@ -2,7 +2,5 @@ source 'https://rubygems.org'
 
 ruby '~> 2.5.0'
 
-gem 'addressable'
 gem 'aws-sdk-sns'
 gem 'dotenv'
-gem 'rest-client'

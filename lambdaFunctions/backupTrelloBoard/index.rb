@@ -1,7 +1,5 @@
-require 'addressable/uri'
 require 'aws-sdk-s3'
 require 'dotenv'
-require 'restclient'
 
 Dotenv.load
 
@@ -16,8 +14,8 @@ def handler(event:, context:)
     board_name = attributes.dig('board_name', 'Value')
 
     endpoint = "https://api.trello.com/1/boards/#{board_id}"
-    uri = Addressable::URI.parse(endpoint)
-    uri.query_values = {
+    uri = URI(endpoint)
+    uri.query = URI.encode_www_form({
       :actions => :all,
       :actions_limit => 1000,
       :cards => :all,
@@ -29,10 +27,13 @@ def handler(event:, context:)
       :card_attachments => true,
       :key => ENV.fetch('TRELLO_KEY'),
       :token => ENV.fetch('TRELLO_TOKEN')
-    }
+    })
 
     puts "#{board_id} - Fetching Trello data for #{board_name} board..."
-    response = RestClient.get(uri.to_s)
+    response = Net::HTTP.get_response(uri)
+    unless response.is_a?(Net::HTTPSuccess)
+      raise "Trello API error: #{response.message} #{response.code}"
+    end
     json = response.body
     puts "#{board_id} - OK"
 

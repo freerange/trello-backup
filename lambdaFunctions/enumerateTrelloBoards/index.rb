@@ -1,7 +1,5 @@
-require 'addressable/uri'
 require 'aws-sdk-sns'
 require 'dotenv'
-require 'restclient'
 
 Dotenv.load
 
@@ -11,12 +9,15 @@ def handler(event:, context:)
   sns = Aws::SNS::Client.new
 
   endpoint = "https://api.trello.com/1/members/me/boards"
-  uri = Addressable::URI.parse(endpoint)
-  uri.query_values = {
+  uri = URI(endpoint)
+  uri.query = URI.encode_www_form({
     :key => ENV.fetch('TRELLO_KEY'),
     :token => ENV.fetch('TRELLO_TOKEN')
-  }
-  response = RestClient.get(uri.to_s)
+  })
+  response = Net::HTTP.get_response(uri)
+  unless response.is_a?(Net::HTTPSuccess)
+    raise "Trello API error: #{response.message} #{response.code}"
+  end
   boards = JSON.parse(response.body)
 
   boards.each do |board|
