@@ -10,30 +10,14 @@ class TrelloBackupStack extends cdk.Stack {
 
     const backupTrelloBoardTopic = new Topic(this, 'backupTrelloBoardTopic');
 
-    const enumerateTrelloBoardsFunction = new lambda.Function(this, 'enumerateTrelloBoards', {
-      runtime: new lambda.Runtime('ruby2.5'),
-      handler: 'index.handler',
-      code: lambda.Code.asset('./lambdaFunctions/enumerateTrelloBoards'),
-      environment: {
-        BACKUP_TRELLO_BOARD_TOPIC_ARN: backupTrelloBoardTopic.topicArn
-      },
-      timeout: 30
-    });
+    const enumerateTrelloBoardsFunction
+      = this.createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic);
 
-    const trelloBoardBackupsBucket = new s3.Bucket(this, 'trelloBoardBackupsBucket', {
-      bucketName: 'trello-board-backups.gofreerange.com',
-      versioned: true
-    });
+    const trelloBoardBackupsBucket
+      = this.createTrelloBoardBackupsBucket();
 
-    const backupTrelloBoardFunction = new lambda.Function(this, 'backupTrelloBoard', {
-      runtime: new lambda.Runtime('ruby2.5'),
-      handler: 'index.handler',
-      code: lambda.Code.asset('./lambdaFunctions/backupTrelloBoard'),
-      environment: {
-        BACKUP_TRELLO_BOARD_S3_BUCKET_NAME: trelloBoardBackupsBucket.bucketName
-      },
-      timeout: 30
-    });
+    const backupTrelloBoardFunction
+      = this.createBackupTrelloBoardFunction(trelloBoardBackupsBucket);
 
     trelloBoardBackupsBucket.grantPut(backupTrelloBoardFunction.role);
 
@@ -45,6 +29,37 @@ class TrelloBackupStack extends cdk.Stack {
        scheduleExpression: dailyAt2am,
     });
     dailyAt2amRule.addTarget(enumerateTrelloBoardsFunction);
+  }
+
+  createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic : Topic) : lambda.Function {
+    return new lambda.Function(this, 'enumerateTrelloBoards', {
+      runtime: new lambda.Runtime('ruby2.5'),
+      handler: 'index.handler',
+      code: lambda.Code.asset('./lambdaFunctions/enumerateTrelloBoards'),
+      environment: {
+        BACKUP_TRELLO_BOARD_TOPIC_ARN: backupTrelloBoardTopic.topicArn
+      },
+      timeout: 30
+    });
+  }
+
+  createTrelloBoardBackupsBucket() : s3.Bucket {
+    return new s3.Bucket(this, 'trelloBoardBackupsBucket', {
+      bucketName: 'trello-board-backups.gofreerange.com',
+      versioned: true
+    });
+  }
+
+  createBackupTrelloBoardFunction(trelloBoardBackupsBucket : s3.Bucket) : lambda.Function {
+    return new lambda.Function(this, 'backupTrelloBoard', {
+      runtime: new lambda.Runtime('ruby2.5'),
+      handler: 'index.handler',
+      code: lambda.Code.asset('./lambdaFunctions/backupTrelloBoard'),
+      environment: {
+        BACKUP_TRELLO_BOARD_S3_BUCKET_NAME: trelloBoardBackupsBucket.bucketName
+      },
+      timeout: 30
+    });
   }
 }
 
