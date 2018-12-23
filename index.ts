@@ -7,6 +7,8 @@ import dotenv = require('dotenv');
 
 dotenv.config();
 
+const rubyLambdaRuntime = new lambda.Runtime('ruby2.5');
+
 class TrelloBackupStack extends cdk.Stack {
   constructor(parent: cdk.App, id: string, props?: cdk.StackProps) {
     super(parent, id, props);
@@ -35,7 +37,7 @@ class TrelloBackupStack extends cdk.Stack {
 
   createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic : Topic, alarmTopic : Topic) : lambda.Function {
     const lambdaFunction = new lambda.Function(this, 'enumerateTrelloBoards', {
-      runtime: new lambda.Runtime('ruby2.5'),
+      runtime: rubyLambdaRuntime,
       handler: 'index.handler',
       code: lambda.Code.asset('./lambdaFunctions/enumerateTrelloBoards'),
       environment: {
@@ -57,7 +59,7 @@ class TrelloBackupStack extends cdk.Stack {
 
   createBackupTrelloBoardFunction(trelloBoardBackupsBucket : s3.Bucket, alarmTopic : Topic) : lambda.Function {
     const lambdaFunction = new lambda.Function(this, 'backupTrelloBoard', {
-      runtime: new lambda.Runtime('ruby2.5'),
+      runtime: rubyLambdaRuntime,
       handler: 'index.handler',
       code: lambda.Code.asset('./lambdaFunctions/backupTrelloBoard'),
       environment: {
