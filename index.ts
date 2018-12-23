@@ -17,8 +17,9 @@ class TrelloBackupStack extends cdk.Stack {
     const enumerateTrelloBoardsFunction
       = this.createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic, alarmTopic);
 
+    const bucketName = process.env.TRELLO_BOARD_BACKUPS_BUCKET_NAME;
     const trelloBoardBackupsBucket
-      = this.createTrelloBoardBackupsBucket();
+      = this.createTrelloBoardBackupsBucket(bucketName);
 
     const backupTrelloBoardFunction
       = this.createBackupTrelloBoardFunction(trelloBoardBackupsBucket, alarmTopic);
@@ -47,9 +48,9 @@ class TrelloBackupStack extends cdk.Stack {
     return lambdaFunction;
   }
 
-  createTrelloBoardBackupsBucket() : s3.Bucket {
+  createTrelloBoardBackupsBucket(bucketName : string) : s3.Bucket {
     return new s3.Bucket(this, 'trelloBoardBackupsBucket', {
-      bucketName: process.env.TRELLO_BOARD_BACKUPS_BUCKET_NAME,
+      bucketName: bucketName,
       versioned: true
     });
   }
