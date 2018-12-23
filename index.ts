@@ -21,11 +21,7 @@ class TrelloBackupStack extends cdk.Stack {
 
     backupTrelloBoardTopic.subscribeLambda(backupTrelloBoardFunction);
 
-    const dailyAt2am = 'cron(0 2 * * ? *)';
-    const dailyAt2amRule = new events.EventRule(this, 'DailyAt2amRule', {
-       scheduleExpression: dailyAt2am,
-    });
-    dailyAt2amRule.addTarget(enumerateTrelloBoardsFunction);
+    this.scheduleDailyAt2am(enumerateTrelloBoardsFunction);
   }
 
   createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic : Topic) : lambda.Function {
@@ -61,6 +57,14 @@ class TrelloBackupStack extends cdk.Stack {
     });
     trelloBoardBackupsBucket.grantPut(lambdaFunction.role);
     return lambdaFunction;
+  }
+
+  scheduleDailyAt2am(lambdaFunction : lambda.Function) : void {
+    const dailyAt2am = 'cron(0 2 * * ? *)';
+    const dailyAt2amRule = new events.EventRule(this, 'DailyAt2amRule', {
+       scheduleExpression: dailyAt2am,
+    });
+    dailyAt2amRule.addTarget(lambdaFunction);
   }
 }
 
