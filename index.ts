@@ -3,6 +3,9 @@ import lambda = require('@aws-cdk/aws-lambda');
 import events = require('@aws-cdk/aws-events');
 import s3 = require('@aws-cdk/aws-s3');
 import { Topic } from '@aws-cdk/aws-sns';
+import dotenv = require('dotenv');
+
+dotenv.config();
 
 class TrelloBackupStack extends cdk.Stack {
   constructor(parent: cdk.App, id: string, props?: cdk.StackProps) {
