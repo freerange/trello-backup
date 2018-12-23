@@ -19,9 +19,6 @@ class TrelloBackupStack extends cdk.Stack {
     const backupTrelloBoardFunction
       = this.createBackupTrelloBoardFunction(trelloBoardBackupsBucket);
 
-    trelloBoardBackupsBucket.grantPut(backupTrelloBoardFunction.role);
-
-    backupTrelloBoardTopic.grantPublish(enumerateTrelloBoardsFunction.role);
     backupTrelloBoardTopic.subscribeLambda(backupTrelloBoardFunction);
 
     const dailyAt2am = 'cron(0 2 * * ? *)';
@@ -32,7 +29,7 @@ class TrelloBackupStack extends cdk.Stack {
   }
 
   createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic : Topic) : lambda.Function {
-    return new lambda.Function(this, 'enumerateTrelloBoards', {
+    const lambdaFunction = new lambda.Function(this, 'enumerateTrelloBoards', {
       runtime: new lambda.Runtime('ruby2.5'),
       handler: 'index.handler',
       code: lambda.Code.asset('./lambdaFunctions/enumerateTrelloBoards'),
@@ -41,6 +38,8 @@ class TrelloBackupStack extends cdk.Stack {
       },
       timeout: 30
     });
+    backupTrelloBoardTopic.grantPublish(lambdaFunction.role);
+    return lambdaFunction;
   }
 
   createTrelloBoardBackupsBucket() : s3.Bucket {
@@ -51,7 +50,7 @@ class TrelloBackupStack extends cdk.Stack {
   }
 
   createBackupTrelloBoardFunction(trelloBoardBackupsBucket : s3.Bucket) : lambda.Function {
-    return new lambda.Function(this, 'backupTrelloBoard', {
+    const lambdaFunction = new lambda.Function(this, 'backupTrelloBoard', {
       runtime: new lambda.Runtime('ruby2.5'),
       handler: 'index.handler',
       code: lambda.Code.asset('./lambdaFunctions/backupTrelloBoard'),
@@ -60,6 +59,8 @@ class TrelloBackupStack extends cdk.Stack {
       },
       timeout: 30
     });
+    trelloBoardBackupsBucket.grantPut(lambdaFunction.role);
+    return lambdaFunction;
   }
 }
 
