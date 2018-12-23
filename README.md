@@ -49,9 +49,12 @@ Ensure you're logged in as the GFR Admin user on https://trello.com. It's safe t
     $ echo "TRELLO_TOKEN=$TRELLO_TOKEN" >> lambdaFunctions/enumerateTrelloBoards/.env
     $ echo "TRELLO_TOKEN=$TRELLO_TOKEN" >> lambdaFunctions/backupTrelloBoard/.env
 
-### Setting S3 bucket name
+### Environment variables
 
-In the top-level `.env` file, set the `TRELLO_BOARD_BACKUPS_BUCKET_NAME` environment variable to the name of the S3 bucket you want to be created and used to save backups.
+In the top-level `.env` file, set the following environment variables:
+
+* `TRELLO_BOARD_BACKUPS_BUCKET_NAME` - the name of the S3 bucket you want to be created and used to save backups
+* `TRELLO_BOARD_BACKUPS_ALARM_EMAIL_ADDRESS` - the email address where alarm emails will be sent (an email will be sent on deployment to ask you to confirm the subscription)
 
 ## Build
 

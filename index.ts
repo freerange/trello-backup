@@ -11,23 +11,27 @@ class TrelloBackupStack extends cdk.Stack {
   constructor(parent: cdk.App, id: string, props?: cdk.StackProps) {
     super(parent, id, props);
 
+    const alarmTopic = new Topic(this, 'alarmTopic');
     const backupTrelloBoardTopic = new Topic(this, 'backupTrelloBoardTopic');
 
     const enumerateTrelloBoardsFunction
-      = this.createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic);
+      = this.createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic, alarmTopic);
 
     const trelloBoardBackupsBucket
       = this.createTrelloBoardBackupsBucket();
 
     const backupTrelloBoardFunction
-      = this.createBackupTrelloBoardFunction(trelloBoardBackupsBucket);
+      = this.createBackupTrelloBoardFunction(trelloBoardBackupsBucket, alarmTopic);
 
     backupTrelloBoardTopic.subscribeLambda(backupTrelloBoardFunction);
+
+    const alarmEmailAddress = process.env.TRELLO_BOARD_BACKUPS_ALARM_EMAIL_ADDRESS;
+    alarmTopic.subscribeEmail('alarmTopicEmail', alarmEmailAddress);
 
     this.scheduleDailyAt2am(enumerateTrelloBoardsFunction);
   }
 
-  createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic : Topic) : lambda.Function {
+  createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic : Topic, alarmTopic : Topic) : lambda.Function {
     const lambdaFunction = new lambda.Function(this, 'enumerateTrelloBoards', {
       runtime: new lambda.Runtime('ruby2.5'),
       handler: 'index.handler',
@@ -38,6 +42,14 @@ class TrelloBackupStack extends cdk.Stack {
       timeout: 30
     });
     backupTrelloBoardTopic.grantPublish(lambdaFunction.role);
+
+    const metricErrors = lambdaFunction.metricErrors();
+    const alarm = metricErrors.newAlarm(this, 'enumerateTrelloBoardsAlarm', {
+      threshold: 1,
+      evaluationPeriods: 1
+    });
+    alarm.onAlarm(alarmTopic);
+
     return lambdaFunction;
   }
 
@@ -48,7 +60,7 @@ class TrelloBackupStack extends cdk.Stack {
     });
   }
 
-  createBackupTrelloBoardFunction(trelloBoardBackupsBucket : s3.Bucket) : lambda.Function {
+  createBackupTrelloBoardFunction(trelloBoardBackupsBucket : s3.Bucket, alarmTopic : Topic) : lambda.Function {
     const lambdaFunction = new lambda.Function(this, 'backupTrelloBoard', {
       runtime: new lambda.Runtime('ruby2.5'),
       handler: 'index.handler',
@@ -59,6 +71,14 @@ class TrelloBackupStack extends cdk.Stack {
       timeout: 30
     });
     trelloBoardBackupsBucket.grantPut(lambdaFunction.role);
+
+    const metricErrors = lambdaFunction.metricErrors();
+    const alarm = metricErrors.newAlarm(this, 'backupTrelloBoardAlarm', {
+      threshold: 1,
+      evaluationPeriods: 1
+    });
+    alarm.onAlarm(alarmTopic);
+
     return lambdaFunction;
   }
 
