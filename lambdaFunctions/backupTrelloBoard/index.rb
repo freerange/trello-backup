@@ -16,18 +16,18 @@ def handler(event:, context:)
     endpoint = "https://api.trello.com/1/boards/#{board_id}"
     uri = URI(endpoint)
     uri.query = URI.encode_www_form({
+      :key => ENV.fetch('TRELLO_KEY'),
+      :token => ENV.fetch('TRELLO_TOKEN'),
       :actions => :all,
       :actions_limit => 1000,
       :cards => :all,
+      :card_attachments => true,
+      :checklists => :all,
+      :fields => :all,
       :labels => :all,
       :lists => :all,
       :members => :all,
-      :member_fields => :all,
-      :checklists => :all,
-      :fields => :all,
-      :card_attachments => true,
-      :key => ENV.fetch('TRELLO_KEY'),
-      :token => ENV.fetch('TRELLO_TOKEN')
+      :member_fields => :all
     })
 
     puts "#{board_id} - Fetching Trello data for #{board_name} board..."
