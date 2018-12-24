@@ -19,6 +19,7 @@ def handler(event:, context:)
       :actions => :all,
       :actions_limit => 1000,
       :cards => :all,
+      :labels => :all,
       :lists => :all,
       :members => :all,
       :member_fields => :all,
