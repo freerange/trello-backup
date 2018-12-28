@@ -12,7 +12,8 @@ def handler(event:, context:)
   uri = URI(endpoint)
   uri.query = URI.encode_www_form({
     :key => ENV.fetch('TRELLO_KEY'),
-    :token => ENV.fetch('TRELLO_TOKEN')
+    :token => ENV.fetch('TRELLO_TOKEN'),
+    :fields => 'id,name'
   })
   response = Net::HTTP.get_response(uri)
   unless response.is_a?(Net::HTTPSuccess)
