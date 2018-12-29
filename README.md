@@ -53,7 +53,7 @@ Ensure you're logged in as the GFR Admin user on https://trello.com. It's safe t
 
 In the top-level `.env` file, set the following environment variables:
 
-* `TRELLO_BACKUP_SCHEDULE_EXPRESSION` - specifies how often the backup is performed, e.g. `cron(0 2 * * ? *)` runs daily at 2am (see [Schedule Expressions for Rules][3] for details)
+* `TRELLO_BACKUP_SCHEDULE_FOR_BACKUP` - specifies how often the backup is performed, e.g. `cron(0 2 * * ? *)` runs daily at 2am (see [Schedule Expressions for Rules][3] for details)
 * `TRELLO_BACKUP_S3_BUCKET_NAME` - the name of the S3 bucket you want to be created and used to save backups
 * `TRELLO_BACKUP_MONITORING_EMAIL_ADDRESS` - the email address where monitoring emails will be sent (an email will be sent on first deployment to ask you to confirm the subscription)
 

@@ -32,8 +32,8 @@ class TrelloBackupStack extends cdk.Stack {
     const monitoringEmailAddress = process.env.TRELLO_BACKUP_MONITORING_EMAIL_ADDRESS;
     monitoringTopic.subscribeEmail('monitoringTopicEmail', monitoringEmailAddress);
 
-    const scheduleExpression = process.env.TRELLO_BACKUP_SCHEDULE_EXPRESSION;
-    this.schedule(enumerateBoardsFunction, scheduleExpression);
+    const scheduleForBackup = process.env.TRELLO_BACKUP_SCHEDULE_FOR_BACKUP;
+    this.schedule(enumerateBoardsFunction, scheduleForBackup);
   }
 
   createEnumerateBoardsFunction(backupBoardTopic : Topic, monitoringTopic : Topic) : lambda.Function {
