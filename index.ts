@@ -15,10 +15,10 @@ class TrelloBackupStack extends cdk.Stack {
     super(parent, id, props);
 
     const monitoringTopic = new Topic(this, 'monitoringTopic');
-    const backupTrelloBoardTopic = new Topic(this, 'backupTrelloBoardTopic');
+    const backupBoardTopic = new Topic(this, 'backupBoardTopic');
 
     const enumerateTrelloBoardsFunction
-      = this.createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic, monitoringTopic);
+      = this.createEnumerateTrelloBoardsFunction(backupBoardTopic, monitoringTopic);
 
     const bucketName = process.env.TRELLO_BOARD_BACKUPS_S3_BUCKET_NAME;
     const trelloBoardBackupsBucket
@@ -27,7 +27,7 @@ class TrelloBackupStack extends cdk.Stack {
     const backupTrelloBoardFunction
       = this.createBackupTrelloBoardFunction(trelloBoardBackupsBucket, monitoringTopic);
 
-    backupTrelloBoardTopic.subscribeLambda(backupTrelloBoardFunction);
+    backupBoardTopic.subscribeLambda(backupTrelloBoardFunction);
 
     const monitoringEmailAddress = process.env.TRELLO_BOARD_BACKUPS_MONITORING_EMAIL_ADDRESS;
     monitoringTopic.subscribeEmail('monitoringTopicEmail', monitoringEmailAddress);
@@ -36,17 +36,17 @@ class TrelloBackupStack extends cdk.Stack {
     this.schedule(enumerateTrelloBoardsFunction, scheduleExpression);
   }
 
-  createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic : Topic, monitoringTopic : Topic) : lambda.Function {
+  createEnumerateTrelloBoardsFunction(backupBoardTopic : Topic, monitoringTopic : Topic) : lambda.Function {
     const lambdaFunction = new lambda.Function(this, 'enumerateTrelloBoards', {
       runtime: rubyLambdaRuntime,
       handler: 'index.handler',
       code: lambda.Code.asset('./lambdaFunctions/enumerateTrelloBoards'),
       environment: {
-        BACKUP_TRELLO_BOARD_TOPIC_ARN: backupTrelloBoardTopic.topicArn
+        BACKUP_TRELLO_BOARD_TOPIC_ARN: backupBoardTopic.topicArn
       },
       timeout: lambdaFunctionTimeout
     });
-    backupTrelloBoardTopic.grantPublish(lambdaFunction.role);
+    backupBoardTopic.grantPublish(lambdaFunction.role);
     this.reportErrors(lambdaFunction, monitoringTopic);
     return lambdaFunction;
   }
