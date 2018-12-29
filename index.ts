@@ -14,29 +14,29 @@ class TrelloBackupStack extends cdk.Stack {
   constructor(parent: cdk.App, id: string, props?: cdk.StackProps) {
     super(parent, id, props);
 
-    const alarmTopic = new Topic(this, 'alarmTopic');
+    const monitoringTopic = new Topic(this, 'monitoringTopic');
     const backupTrelloBoardTopic = new Topic(this, 'backupTrelloBoardTopic');
 
     const enumerateTrelloBoardsFunction
-      = this.createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic, alarmTopic);
+      = this.createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic, monitoringTopic);
 
     const bucketName = process.env.TRELLO_BOARD_BACKUPS_S3_BUCKET_NAME;
     const trelloBoardBackupsBucket
       = this.createTrelloBoardBackupsBucket(bucketName);
 
     const backupTrelloBoardFunction
-      = this.createBackupTrelloBoardFunction(trelloBoardBackupsBucket, alarmTopic);
+      = this.createBackupTrelloBoardFunction(trelloBoardBackupsBucket, monitoringTopic);
 
     backupTrelloBoardTopic.subscribeLambda(backupTrelloBoardFunction);
 
-    const alarmEmailAddress = process.env.TRELLO_BOARD_BACKUPS_ALARM_EMAIL_ADDRESS;
-    alarmTopic.subscribeEmail('alarmTopicEmail', alarmEmailAddress);
+    const monitoringEmailAddress = process.env.TRELLO_BOARD_BACKUPS_MONITORING_EMAIL_ADDRESS;
+    monitoringTopic.subscribeEmail('monitoringTopicEmail', monitoringEmailAddress);
 
     const scheduleExpression = process.env.TRELLO_BOARD_BACKUPS_SCHEDULE_EXPRESSION;
     this.schedule(enumerateTrelloBoardsFunction, scheduleExpression);
   }
 
-  createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic : Topic, alarmTopic : Topic) : lambda.Function {
+  createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic : Topic, monitoringTopic : Topic) : lambda.Function {
     const lambdaFunction = new lambda.Function(this, 'enumerateTrelloBoards', {
       runtime: rubyLambdaRuntime,
       handler: 'index.handler',
@@ -47,7 +47,7 @@ class TrelloBackupStack extends cdk.Stack {
       timeout: lambdaFunctionTimeout
     });
     backupTrelloBoardTopic.grantPublish(lambdaFunction.role);
-    this.reportErrors(lambdaFunction, alarmTopic);
+    this.reportErrors(lambdaFunction, monitoringTopic);
     return lambdaFunction;
   }
 
@@ -58,7 +58,7 @@ class TrelloBackupStack extends cdk.Stack {
     });
   }
 
-  createBackupTrelloBoardFunction(trelloBoardBackupsBucket : s3.Bucket, alarmTopic : Topic) : lambda.Function {
+  createBackupTrelloBoardFunction(trelloBoardBackupsBucket : s3.Bucket, monitoringTopic : Topic) : lambda.Function {
     const lambdaFunction = new lambda.Function(this, 'backupTrelloBoard', {
       runtime: rubyLambdaRuntime,
       handler: 'index.handler',
@@ -66,7 +66,7 @@ class TrelloBackupStack extends cdk.Stack {
       timeout: lambdaFunctionTimeout
     });
     trelloBoardBackupsBucket.grantPut(lambdaFunction.role);
-    this.reportErrors(lambdaFunction, alarmTopic);
+    this.reportErrors(lambdaFunction, monitoringTopic);
     return lambdaFunction;
   }
 
@@ -77,13 +77,13 @@ class TrelloBackupStack extends cdk.Stack {
     rule.addTarget(lambdaFunction);
   }
 
-  reportErrors(lambdaFunction : lambda.Function, alarmTopic : Topic) : void {
+  reportErrors(lambdaFunction : lambda.Function, monitoringTopic : Topic) : void {
     const metricErrors = lambdaFunction.metricErrors();
     const alarm = metricErrors.newAlarm(this, `${lambdaFunction.id}Alarm`, {
       threshold: 1,
       evaluationPeriods: 1
     });
-    alarm.onAlarm(alarmTopic);
+    alarm.onAlarm(monitoringTopic);
   }
 }
 

@@ -55,7 +55,7 @@ In the top-level `.env` file, set the following environment variables:
 
 * `TRELLO_BOARD_BACKUPS_SCHEDULE_EXPRESSION` - specifies how often the backup is performed, e.g. "cron(0 2 * * ? *)" runs daily at 2am (see [Schedule Expressions for Rules][3] for details)
 * `TRELLO_BOARD_BACKUPS_S3_BUCKET_NAME` - the name of the S3 bucket you want to be created and used to save backups
-* `TRELLO_BOARD_BACKUPS_ALARM_EMAIL_ADDRESS` - the email address where alarm emails will be sent (an email will be sent on deployment to ask you to confirm the subscription)
+* `TRELLO_BOARD_BACKUPS_MONITORING_EMAIL_ADDRESS` - the email address where monitoring emails will be sent (an email will be sent on deployment to ask you to confirm the subscription)
 
 Note: this `.env` file is copied into some/all of the `lambdaFunctions` folders at build time.
 
