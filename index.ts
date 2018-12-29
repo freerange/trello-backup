@@ -42,7 +42,7 @@ class TrelloBackupStack extends cdk.Stack {
       handler: 'index.handler',
       code: lambda.Code.asset('./lambdaFunctions/enumerateBoards'),
       environment: {
-        BACKUP_TRELLO_BOARD_TOPIC_ARN: backupBoardTopic.topicArn
+        TRELLO_BACKUP_BACKUP_BOARD_TOPIC_ARN: backupBoardTopic.topicArn
       },
       timeout: lambdaFunctionTimeout
     });

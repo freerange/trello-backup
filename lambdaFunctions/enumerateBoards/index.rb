@@ -3,7 +3,7 @@ require 'dotenv'
 
 Dotenv.load
 
-TOPIC_ARN = ENV.fetch('BACKUP_TRELLO_BOARD_TOPIC_ARN')
+TOPIC_ARN = ENV.fetch('TRELLO_BACKUP_BACKUP_BOARD_TOPIC_ARN')
 
 def handler(event:, context:)
   sns = Aws::SNS::Client.new
