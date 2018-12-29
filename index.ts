@@ -29,6 +29,9 @@ class TrelloBackupStack extends cdk.Stack {
 
     backupBoardTopic.subscribeLambda(backupBoardFunction);
 
+    const checkBoardBackupsFunction
+      = this.createCheckBoardBackupsFunction(boardBackupsBucket, monitoringTopic);
+
     const monitoringEmailAddress = process.env.TRELLO_BACKUP_MONITORING_EMAIL_ADDRESS;
     monitoringTopic.subscribeEmail('monitoringTopicEmail', monitoringEmailAddress);
 
@@ -37,6 +40,12 @@ class TrelloBackupStack extends cdk.Stack {
        scheduleExpression: scheduleForBackup,
     });
     ruleForBackup.addTarget(enumerateBoardsFunction);
+
+    const scheduleForCheck = process.env.TRELLO_BACKUP_SCHEDULE_FOR_CHECK;
+    const ruleForCheck = new events.EventRule(this, 'RuleForCheck', {
+       scheduleExpression: scheduleForCheck,
+    });
+    ruleForCheck.addTarget(checkBoardBackupsFunction);
   }
 
   createEnumerateBoardsFunction(backupBoardTopic : Topic, monitoringTopic : Topic) : lambda.Function {
@@ -69,6 +78,22 @@ class TrelloBackupStack extends cdk.Stack {
       timeout: lambdaFunctionTimeout
     });
     boardBackupsBucket.grantPut(lambdaFunction.role);
+    this.reportErrors(lambdaFunction, monitoringTopic);
+    return lambdaFunction;
+  }
+
+  createCheckBoardBackupsFunction(boardBackupsBucket : s3.Bucket, monitoringTopic : Topic) : lambda.Function {
+    const lambdaFunction = new lambda.Function(this, 'checkBoardBackups', {
+      runtime: rubyLambdaRuntime,
+      handler: 'index.handler',
+      code: lambda.Code.asset('./lambdaFunctions/checkBoardBackups'),
+      environment: {
+        TRELLO_BACKUP_MONITORING_TOPIC_ARN: monitoringTopic.topicArn
+      },
+      timeout: lambdaFunctionTimeout
+    });
+    boardBackupsBucket.grantRead(lambdaFunction.role);
+    monitoringTopic.grantPublish(lambdaFunction.role);
     this.reportErrors(lambdaFunction, monitoringTopic);
     return lambdaFunction;
   }
