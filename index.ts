@@ -17,8 +17,8 @@ class TrelloBackupStack extends cdk.Stack {
     const monitoringTopic = new Topic(this, 'monitoringTopic');
     const backupBoardTopic = new Topic(this, 'backupBoardTopic');
 
-    const enumerateTrelloBoardsFunction
-      = this.createEnumerateTrelloBoardsFunction(backupBoardTopic, monitoringTopic);
+    const enumerateBoardsFunction
+      = this.createEnumerateBoardsFunction(backupBoardTopic, monitoringTopic);
 
     const bucketName = process.env.TRELLO_BOARD_BACKUPS_S3_BUCKET_NAME;
     const trelloBoardBackupsBucket
@@ -33,14 +33,14 @@ class TrelloBackupStack extends cdk.Stack {
     monitoringTopic.subscribeEmail('monitoringTopicEmail', monitoringEmailAddress);
 
     const scheduleExpression = process.env.TRELLO_BOARD_BACKUPS_SCHEDULE_EXPRESSION;
-    this.schedule(enumerateTrelloBoardsFunction, scheduleExpression);
+    this.schedule(enumerateBoardsFunction, scheduleExpression);
   }
 
-  createEnumerateTrelloBoardsFunction(backupBoardTopic : Topic, monitoringTopic : Topic) : lambda.Function {
-    const lambdaFunction = new lambda.Function(this, 'enumerateTrelloBoards', {
+  createEnumerateBoardsFunction(backupBoardTopic : Topic, monitoringTopic : Topic) : lambda.Function {
+    const lambdaFunction = new lambda.Function(this, 'enumerateBoards', {
       runtime: rubyLambdaRuntime,
       handler: 'index.handler',
-      code: lambda.Code.asset('./lambdaFunctions/enumerateTrelloBoards'),
+      code: lambda.Code.asset('./lambdaFunctions/enumerateBoards'),
       environment: {
         BACKUP_TRELLO_BOARD_TOPIC_ARN: backupBoardTopic.topicArn
       },
