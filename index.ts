@@ -33,7 +33,10 @@ class TrelloBackupStack extends cdk.Stack {
     monitoringTopic.subscribeEmail('monitoringTopicEmail', monitoringEmailAddress);
 
     const scheduleForBackup = process.env.TRELLO_BACKUP_SCHEDULE_FOR_BACKUP;
-    this.schedule(enumerateBoardsFunction, scheduleForBackup);
+    const ruleForBackup = new events.EventRule(this, 'RuleForBackup', {
+       scheduleExpression: scheduleForBackup,
+    });
+    ruleForBackup.addTarget(enumerateBoardsFunction);
   }
 
   createEnumerateBoardsFunction(backupBoardTopic : Topic, monitoringTopic : Topic) : lambda.Function {
@@ -68,13 +71,6 @@ class TrelloBackupStack extends cdk.Stack {
     boardBackupsBucket.grantPut(lambdaFunction.role);
     this.reportErrors(lambdaFunction, monitoringTopic);
     return lambdaFunction;
-  }
-
-  schedule(lambdaFunction : lambda.Function, scheduleExpression : string) : void {
-    const rule = new events.EventRule(this, 'ScheduleExpressionRule', {
-       scheduleExpression: scheduleExpression,
-    });
-    rule.addTarget(lambdaFunction);
   }
 
   reportErrors(lambdaFunction : lambda.Function, monitoringTopic : Topic) : void {
