@@ -20,7 +20,7 @@ class TrelloBackupStack extends cdk.Stack {
     const enumerateBoardsFunction
       = this.createEnumerateBoardsFunction(backupBoardTopic, monitoringTopic);
 
-    const bucketName = process.env.TRELLO_BOARD_BACKUPS_S3_BUCKET_NAME;
+    const bucketName = process.env.TRELLO_BACKUP_S3_BUCKET_NAME;
     const boardBackupsBucket
       = this.createBoardBackupsBucket(bucketName);
 
@@ -29,10 +29,10 @@ class TrelloBackupStack extends cdk.Stack {
 
     backupBoardTopic.subscribeLambda(backupBoardFunction);
 
-    const monitoringEmailAddress = process.env.TRELLO_BOARD_BACKUPS_MONITORING_EMAIL_ADDRESS;
+    const monitoringEmailAddress = process.env.TRELLO_BACKUP_MONITORING_EMAIL_ADDRESS;
     monitoringTopic.subscribeEmail('monitoringTopicEmail', monitoringEmailAddress);
 
-    const scheduleExpression = process.env.TRELLO_BOARD_BACKUPS_SCHEDULE_EXPRESSION;
+    const scheduleExpression = process.env.TRELLO_BACKUP_SCHEDULE_EXPRESSION;
     this.schedule(enumerateBoardsFunction, scheduleExpression);
   }
 
