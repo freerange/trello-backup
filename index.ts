@@ -24,10 +24,10 @@ class TrelloBackupStack extends cdk.Stack {
     const trelloBoardBackupsBucket
       = this.createTrelloBoardBackupsBucket(bucketName);
 
-    const backupTrelloBoardFunction
-      = this.createBackupTrelloBoardFunction(trelloBoardBackupsBucket, monitoringTopic);
+    const backupBoardFunction
+      = this.createBackupBoardFunction(trelloBoardBackupsBucket, monitoringTopic);
 
-    backupBoardTopic.subscribeLambda(backupTrelloBoardFunction);
+    backupBoardTopic.subscribeLambda(backupBoardFunction);
 
     const monitoringEmailAddress = process.env.TRELLO_BOARD_BACKUPS_MONITORING_EMAIL_ADDRESS;
     monitoringTopic.subscribeEmail('monitoringTopicEmail', monitoringEmailAddress);
@@ -58,11 +58,11 @@ class TrelloBackupStack extends cdk.Stack {
     });
   }
 
-  createBackupTrelloBoardFunction(trelloBoardBackupsBucket : s3.Bucket, monitoringTopic : Topic) : lambda.Function {
-    const lambdaFunction = new lambda.Function(this, 'backupTrelloBoard', {
+  createBackupBoardFunction(trelloBoardBackupsBucket : s3.Bucket, monitoringTopic : Topic) : lambda.Function {
+    const lambdaFunction = new lambda.Function(this, 'backupBoard', {
       runtime: rubyLambdaRuntime,
       handler: 'index.handler',
-      code: lambda.Code.asset('./lambdaFunctions/backupTrelloBoard'),
+      code: lambda.Code.asset('./lambdaFunctions/backupBoard'),
       timeout: lambdaFunctionTimeout
     });
     trelloBoardBackupsBucket.grantPut(lambdaFunction.role);
