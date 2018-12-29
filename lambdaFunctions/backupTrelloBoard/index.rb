@@ -3,7 +3,7 @@ require 'dotenv'
 
 Dotenv.load
 
-S3_BUCKET_NAME = ENV.fetch('TRELLO_BOARD_BACKUPS_BUCKET_NAME')
+S3_BUCKET_NAME = ENV.fetch('TRELLO_BOARD_BACKUPS_S3_BUCKET_NAME')
 
 def handler(event:, context:)
   records = event.fetch('Records', [])

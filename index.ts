@@ -20,7 +20,7 @@ class TrelloBackupStack extends cdk.Stack {
     const enumerateTrelloBoardsFunction
       = this.createEnumerateTrelloBoardsFunction(backupTrelloBoardTopic, alarmTopic);
 
-    const bucketName = process.env.TRELLO_BOARD_BACKUPS_BUCKET_NAME;
+    const bucketName = process.env.TRELLO_BOARD_BACKUPS_S3_BUCKET_NAME;
     const trelloBoardBackupsBucket
       = this.createTrelloBoardBackupsBucket(bucketName);
 
