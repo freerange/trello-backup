@@ -63,9 +63,6 @@ class TrelloBackupStack extends cdk.Stack {
       runtime: rubyLambdaRuntime,
       handler: 'index.handler',
       code: lambda.Code.asset('./lambdaFunctions/backupTrelloBoard'),
-      environment: {
-        BACKUP_TRELLO_BOARD_S3_BUCKET_NAME: trelloBoardBackupsBucket.bucketName
-      },
       timeout: lambdaFunctionTimeout
     });
     trelloBoardBackupsBucket.grantPut(lambdaFunction.role);
