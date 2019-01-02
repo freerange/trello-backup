@@ -1,8 +1,25 @@
-We use this script to regularly backup all our GFR Trello boards to Dropbox.
+## Requirements
 
-## Generating/storing the tokens you need to use this script
+* node
+* npm
 
-### Getting the Trello API key
+## Setup
+
+### Install node packages
+
+    npm ci
+
+### Configure AWS
+
+* You need to specify the AWS credentials and default region to use when running
+the `cdk` command-line tool in the same way you would configure the `aws`
+command-line tool. See [Configuring the AWS CDK Toolkit][1] for details.
+
+* I recommend using `aws configure` and/or `~/.aws/credentials` & `~/.aws/config`
+to setup a named profile and then use the `--profile <aws-profile-name>` option
+with the `cdk` command-line tool to select the relevant AWS profile.
+
+### Getting a Trello API key
 
 Ensure you're logged in as the GFR Admin user.
 
@@ -13,11 +30,12 @@ Ensure you're logged in as the GFR Admin user.
     $ export TRELLO_KEY=`pbpaste`
 
     # Store the Trello API key in .env
-    $ echo "TRELLO_KEY=$TRELLO_KEY" >> .env
+    $ echo "TRELLO_KEY=$TRELLO_KEY" >> lambdaFunctions/enumerateTrelloBoards/.env
+    $ echo "TRELLO_KEY=$TRELLO_KEY" >> lambdaFunctions/backupTrelloBoard/.env
 
-### Getting a token to allow this app to read our Trello board
+### Getting a Trello API token
 
-Ensure you're logged in as the GFR Admin user. It's safe to run do this step multiple times as you'll get the same token back even if it's already been generated.
+Ensure you're logged in as the GFR Admin user on https://trello.com. It's safe to run do this step multiple times as you'll get the same token back even if it's already been generated.
 
     $ open "https://trello.com/1/connect?key=$TRELLO_KEY&name=gfr-trello-backup&expiration=never&response_type=token"
     # Allow the gfr-trello-backup app to read our Trello account
@@ -29,54 +47,41 @@ Ensure you're logged in as the GFR Admin user. It's safe to run do this step mul
 
     # Store the Trello token in .env
     $ echo "TRELLO_TOKEN=$TRELLO_TOKEN" >> .env
+    $ echo "TRELLO_TOKEN=$TRELLO_TOKEN" >> .env
 
-### Getting a token to allow this app to write to Dropbox
+### Environment variables
 
-Ensure you're logged in as the GFR Admin user.
+In the top-level `.env` file, set the following environment variables:
 
-    $ open "https://www.dropbox.com/developers/apps"
+* `TRELLO_BACKUP_SCHEDULE_FOR_BACKUP` - specifies how often the backup is performed, e.g. `cron(0 2 * * ? *)` runs daily at 2am (see [Schedule Expressions for Rules][3] for details)
+* `TRELLO_BACKUP_SCHEDULE_FOR_CHECK` - specifies how often the post-backup check is performed, e.g. `cron(30 2 * * ? *)` runs daily at 2.30am
+* `TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS` - how old a backup is allowed to be when the post-backup check is performed, e.g. `1800` only allows backups to be 30 minutes old; older backups trigger an error
+* `TRELLO_BACKUP_S3_BUCKET_NAME` - the name of the S3 bucket you want to be created and used to save backups
+* `TRELLO_BACKUP_MONITORING_EMAIL_ADDRESS` - the email address where monitoring emails will be sent (an email will be sent on first deployment to ask you to confirm the subscription)
 
-    # Navigate to "Trello Backup"
-    # Click the "Generate" button in OAuth 2 > Generated access token
-    # Copy the generated access token
+Note: this `.env` file is copied into some/all of the `lambdaFunctions` folders at build time.
 
-    # Temporarily store the access token in an environment variable
-    $ export DROPBOX_ACCESS_TOKEN=`pbpaste`
+## Build
 
-    # Store the Dropbox token in .env
-    $ echo "DROPBOX_ACCESS_TOKEN=$DROPBOX_ACCESS_TOKEN" >> .env
+    npm run build
 
-## Testing the script locally
+## Execute CDK commands
 
-Assuming you've followed the instructions above and got all the tokens stored in .env, this should be as simple as running `ruby backup.rb`. If it's worked successfully then you'll see a backup for today in https://www.dropbox.com/home/Apps/Trello%20Backup.
+    cdk --profile <aws-profile-name> <cdk-command>
 
-## Deployment
+* See [Command-line Toolkit][2] for a list of commands and options to use with
+the `cdk` command-line tool.
 
-### Deploying with recap
+* The `cdk.json` file defines an appropriate value for the `--app` option, so
+there is no need to specify this unless you want to override that value.
 
-    $ cap bootstrap
-    $ cap deploy:setup
-    $ cap deploy
+* `node_modules/.bin` must be in your `PATH` environment variable in order to
+be able to run the `cdk` command-line tool.
 
-### Set the application user's shell to bash
+* When a stack uses assets (e.g. via a call to `aws-lambda.Code.asset()`),
+before using the `cdk` command-line tool to deploy to an AWS environment for
+the first time, the environment must be bootstrapped using: `cdk bootstrap`.
 
-    root$ chsh -s /bin/bash trello_backup
-
-### Set the Trello and Dropbox environment variables
-
-I'm going to assume you've already got these environment variables configured in your local .env.
-
-    $ cap env:set TRELLO_KEY=`grep TRELLO_KEY .env | cut -d"=" -f2`
-    $ cap env:set TRELLO_TOKEN=`grep TRELLO_TOKEN .env | cut -d"=" -f2`
-    $ cap env:set DROPBOX_ACCESS_TOKEN=`grep DROPBOX_ACCESS_TOKEN .env | cut -d"=" -f2`
-
-## Test the script by running it manually
-
-    # Print the command that's being run under cron
-    trello_backup$ crontab -l | grep -o "/bin/bash.*backup.rb.*"
-
-    # Copy and paste the printed command to execute the backup script manually
-    # If everything has worked then you should see a new backup file in
-    # https://www.dropbox.com/home/Apps/Trello%20Backup when you're logged
-    # in as GFR's dropbox user.
-
+[1]: https://awslabs.github.io/aws-cdk/getting-started.html#configuring-the-cdk-toolkit
+[2]: https://awslabs.github.io/aws-cdk/tools.html#command-line-toolkit-cdk
+[3]: https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html
