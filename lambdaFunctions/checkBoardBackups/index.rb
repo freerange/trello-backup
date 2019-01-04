@@ -2,6 +2,8 @@ require 'aws-sdk-s3'
 require 'aws-sdk-sns'
 require 'csv'
 require 'dotenv'
+require 'net/http'
+require 'uri'
 
 Dotenv.load
 
@@ -41,22 +43,26 @@ def handler(event:, context:)
     end
   end
 
-  success = boards_with_status.all? { |b| b[:success] }
-  subject = "Trello Backup: #{success ? 'Success' : 'Failure'}"
-  message = ''
-  CSV(message, col_sep: "\t") do |csv|
-    csv << %w[id name success message]
-    boards_with_status.each do |board|
-      csv << [board[:id], board[:name], board[:success], board[:message]]
+  unless boards_with_status.all? { |b| b[:success] }
+    subject = "Trello Backup: Failure"
+    message = ''
+    CSV(message, col_sep: "\t") do |csv|
+      csv << %w[id name success message]
+      boards_with_status.each do |board|
+        csv << [board[:id], board[:name], board[:success], board[:message]]
+      end
     end
+
+    sns = Aws::SNS::Client.new
+    sns.publish(
+      topic_arn: TOPIC_ARN,
+      subject: subject,
+      message: message,
+    )
   end
 
-  sns = Aws::SNS::Client.new
-  sns.publish(
-    topic_arn: TOPIC_ARN,
-    subject: subject,
-    message: message,
-  )
+  # Ping healthcheck.io
+  Net::HTTP.get(URI.parse('https://hc-ping.com/60c927ed-9af3-419b-9f4e-6db6369e7d28'))
 
   { statusCode: 200, body: 'OK' }
 end
