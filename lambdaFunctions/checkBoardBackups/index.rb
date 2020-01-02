@@ -61,7 +61,7 @@ def handler(event:, context:)
     )
   end
 
-  # Ping healthcheck.io
+  # Ping healthchecks.io
   Net::HTTP.get(URI.parse('https://hc-ping.com/60c927ed-9af3-419b-9f4e-6db6369e7d28'))
 
   { statusCode: 200, body: 'OK' }
