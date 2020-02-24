@@ -5,6 +5,7 @@ import s3 = require('@aws-cdk/aws-s3');
 import { Topic } from '@aws-cdk/aws-sns';
 import dotenv = require('dotenv');
 import aet = require('@aws-cdk/aws-events-targets');
+import aca = require('@aws-cdk/aws-cloudwatch-actions');
 
 dotenv.config();
 
@@ -105,7 +106,7 @@ class TrelloBackupStack extends cdk.Stack {
       threshold: 1,
       evaluationPeriods: 1
     });
-    alarm.addAlarmAction(monitoringTopic);
+    alarm.addAlarmAction(new aca.SnsAction(monitoringTopic));
   }
 }
 
