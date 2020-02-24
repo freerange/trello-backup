@@ -23,7 +23,7 @@ with the `cdk` command-line tool to select the relevant AWS profile.
 
 ### Getting a Trello API key
 
-Ensure you're logged in as the GFR Admin user.
+Ensure you're signed in to [Trello][] as a user with access to the relevant boards.
 
     $ open "https://trello.com/1/appKey/generate"
     # Copy the Key (under Developer API Keys) to the clipboard
@@ -37,10 +37,10 @@ Ensure you're logged in as the GFR Admin user.
 
 ### Getting a Trello API token
 
-Ensure you're logged in as the GFR Admin user on https://trello.com. It's safe to run do this step multiple times as you'll get the same token back even if it's already been generated.
+Ensure you're signed in to [Trello][] as a user with access to the relevant boards. It's safe to do this step multiple times as you'll get the same token back even if it's already been generated.
 
-    $ open "https://trello.com/1/connect?key=$TRELLO_KEY&name=gfr-trello-backup&expiration=never&response_type=token"
-    # Allow the gfr-trello-backup app to read our Trello account
+    $ open "https://trello.com/1/connect?key=$TRELLO_KEY&name=$TRELLO_APP_NAME&expiration=never&response_type=token"
+    # Allow the Trello backup "app" to read our Trello account
 
     # Copy the token from the resulting page
 
@@ -84,6 +84,7 @@ be able to run the `cdk` command-line tool.
 before using the `cdk` command-line tool to deploy to an AWS environment for
 the first time, the environment must be bootstrapped using: `cdk bootstrap`.
 
+[Trello]: https://trello.com
 [1]: https://awslabs.github.io/aws-cdk/getting-started.html#configuring-the-cdk-toolkit
 [2]: https://awslabs.github.io/aws-cdk/tools.html#command-line-toolkit-cdk
 [3]: https://docs.aws.amazon.com/AmazonCloudWatch/latest/events/ScheduledEvents.html
