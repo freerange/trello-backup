@@ -1,4 +1,4 @@
-import cdk = require('@aws-cdk/cdk');
+import cdk = require('@aws-cdk/core');
 import lambda = require('@aws-cdk/aws-lambda');
 import events = require('@aws-cdk/aws-events');
 import s3 = require('@aws-cdk/aws-s3');
@@ -59,7 +59,7 @@ class TrelloBackupStack extends cdk.Stack {
       environment: {
         TRELLO_BACKUP_BACKUP_BOARD_TOPIC_ARN: backupBoardTopic.topicArn
       },
-      timeout: lambdaFunctionTimeout
+      timeout: cdk.Duration.seconds(lambdaFunctionTimeout)
     });
     backupBoardTopic.grantPublish(lambdaFunction.role);
     this.reportErrors(lambdaFunction, monitoringTopic);
@@ -68,7 +68,7 @@ class TrelloBackupStack extends cdk.Stack {
 
   createBoardBackupsBucket(bucketName : string) : s3.Bucket {
     return new s3.Bucket(this, 'boardBackupsBucket', {
-      bucketName: cdk.PhysicalName.of(bucketName),
+      bucketName: bucketName,
       versioned: true
     });
   }
@@ -78,7 +78,7 @@ class TrelloBackupStack extends cdk.Stack {
       runtime: rubyLambdaRuntime,
       handler: 'index.handler',
       code: lambda.Code.asset('./lambdaFunctions/backupBoard'),
-      timeout: lambdaFunctionTimeout
+      timeout: cdk.Duration.seconds(lambdaFunctionTimeout)
     });
     boardBackupsBucket.grantPut(lambdaFunction.role);
     this.reportErrors(lambdaFunction, monitoringTopic);
@@ -93,7 +93,7 @@ class TrelloBackupStack extends cdk.Stack {
       environment: {
         TRELLO_BACKUP_MONITORING_TOPIC_ARN: monitoringTopic.topicArn
       },
-      timeout: lambdaFunctionTimeout
+      timeout: cdk.Duration.seconds(lambdaFunctionTimeout)
     });
     boardBackupsBucket.grantRead(lambdaFunction.role);
     monitoringTopic.grantPublish(lambdaFunction.role);
@@ -113,4 +113,4 @@ class TrelloBackupStack extends cdk.Stack {
 
 const app = new cdk.App();
 new TrelloBackupStack(app, 'TrelloBackup');
-app.run();
+app.synth();
