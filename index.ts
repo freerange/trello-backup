@@ -4,6 +4,7 @@ import events = require('@aws-cdk/aws-events');
 import s3 = require('@aws-cdk/aws-s3');
 import { Topic } from '@aws-cdk/aws-sns';
 import dotenv = require('dotenv');
+import aet = require('@aws-cdk/aws-events-targets');
 
 dotenv.config();
 
@@ -39,13 +40,13 @@ class TrelloBackupStack extends cdk.Stack {
     const ruleForBackup = new events.EventRule(this, 'RuleForBackup', {
        scheduleExpression: scheduleForBackup,
     });
-    ruleForBackup.addTarget(enumerateBoardsFunction);
+    ruleForBackup.addTarget(new aet.LambdaFunction(enumerateBoardsFunction));
 
     const scheduleForCheck = process.env.TRELLO_BACKUP_SCHEDULE_FOR_CHECK;
     const ruleForCheck = new events.EventRule(this, 'RuleForCheck', {
        scheduleExpression: scheduleForCheck,
     });
-    ruleForCheck.addTarget(checkBoardBackupsFunction);
+    ruleForCheck.addTarget(new aet.LambdaFunction(checkBoardBackupsFunction));
   }
 
   createEnumerateBoardsFunction(backupBoardTopic : Topic, monitoringTopic : Topic) : lambda.Function {

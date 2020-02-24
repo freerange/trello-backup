@@ -10,14 +10,15 @@
   "author": "Go Free Range Ltd",
   "license": "MIT",
   "dependencies": {
-    "@aws-cdk/aws-events": "^0.28.0",
-    "@aws-cdk/aws-lambda": "^0.28.0",
-    "@aws-cdk/aws-s3": "^0.28.0",
-    "@aws-cdk/aws-sns": "^0.28.0",
+    "@aws-cdk/aws-events": "^0.29.0",
+    "@aws-cdk/aws-events-targets": "^0.29.0",
+    "@aws-cdk/aws-lambda": "^0.29.0",
+    "@aws-cdk/aws-s3": "^0.29.0",
+    "@aws-cdk/aws-sns": "^0.29.0",
     "@types/dotenv": "^6.1.0",
-    "aws-cdk": "^0.28.0",
+    "aws-cdk": "^0.29.0",
     "dotenv": "^6.2.0",
-    "typescript": "^3.2.2",
-    "mem": ">=4.0.0"
+    "mem": ">=4.0.0",
+    "typescript": "^3.2.2"
   }
 }

@@ -1,2 +1,5 @@
 index.js
 .env
+
+# CDK asset staging directory
+.cdk.staging
