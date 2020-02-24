@@ -10,17 +10,17 @@
   "author": "Go Free Range Ltd",
   "license": "MIT",
   "devDependencies": {
-    "aws-cdk": "^0.38.0"
+    "aws-cdk": "^0.39.0"
   },
   "dependencies": {
-    "@aws-cdk/aws-cloudwatch-actions": "^0.38.0",
-    "@aws-cdk/aws-events": "^0.38.0",
-    "@aws-cdk/aws-events-targets": "^0.38.0",
-    "@aws-cdk/aws-lambda": "^0.38.0",
-    "@aws-cdk/aws-s3": "^0.38.0",
-    "@aws-cdk/aws-sns": "^0.38.0",
+    "@aws-cdk/aws-cloudwatch-actions": "^0.39.0",
+    "@aws-cdk/aws-events": "^0.39.0",
+    "@aws-cdk/aws-events-targets": "^0.39.0",
+    "@aws-cdk/aws-lambda": "^0.39.0",
+    "@aws-cdk/aws-s3": "^0.39.0",
+    "@aws-cdk/aws-sns": "^0.39.0",
     "@types/dotenv": "^6.1.0",
-    "@aws-cdk/core": "^0.38.0",
+    "@aws-cdk/core": "^0.39.0",
     "dotenv": "^6.2.0",
     "mem": ">=4.0.0",
     "typescript": "^3.2.2"
