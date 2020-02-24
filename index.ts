@@ -10,6 +10,14 @@ import ass = require('@aws-cdk/aws-sns-subscriptions');
 
 dotenv.config();
 
+const env = (key: string) => {
+  const value = process.env[key];
+  if (value) {
+    return value;
+  } else {
+    throw `Missing env var ${key}`
+  }
+}
 const rubyLambdaRuntime = new lambda.Runtime('ruby2.5');
 const lambdaFunctionTimeout = 30;
 
@@ -23,7 +31,7 @@ class TrelloBackupStack extends cdk.Stack {
     const enumerateBoardsFunction
       = this.createEnumerateBoardsFunction(backupBoardTopic, monitoringTopic);
 
-    const bucketName = process.env.TRELLO_BACKUP_S3_BUCKET_NAME;
+    const bucketName = env('TRELLO_BACKUP_S3_BUCKET_NAME');
     const boardBackupsBucket
       = this.createBoardBackupsBucket(bucketName);
 
@@ -35,16 +43,16 @@ class TrelloBackupStack extends cdk.Stack {
     const checkBoardBackupsFunction
       = this.createCheckBoardBackupsFunction(boardBackupsBucket, monitoringTopic);
 
-    const monitoringEmailAddress = process.env.TRELLO_BACKUP_MONITORING_EMAIL_ADDRESS;
+    const monitoringEmailAddress = env('TRELLO_BACKUP_MONITORING_EMAIL_ADDRESS');
     monitoringTopic.addSubscription(new ass.EmailSubscription(monitoringEmailAddress));
 
-    const scheduleForBackup = process.env.TRELLO_BACKUP_SCHEDULE_FOR_BACKUP;
+    const scheduleForBackup = env('TRELLO_BACKUP_SCHEDULE_FOR_BACKUP');
     const ruleForBackup = new events.Rule(this, 'RuleForBackup', {
       schedule: events.Schedule.expression(scheduleForBackup)
     });
     ruleForBackup.addTarget(new aet.LambdaFunction(enumerateBoardsFunction));
 
-    const scheduleForCheck = process.env.TRELLO_BACKUP_SCHEDULE_FOR_CHECK;
+    const scheduleForCheck = env('TRELLO_BACKUP_SCHEDULE_FOR_CHECK');
     const ruleForCheck = new events.Rule(this, 'RuleForCheck', {
       schedule: events.Schedule.expression(scheduleForCheck)
     });
@@ -61,7 +69,7 @@ class TrelloBackupStack extends cdk.Stack {
       },
       timeout: cdk.Duration.seconds(lambdaFunctionTimeout)
     });
-    backupBoardTopic.grantPublish(lambdaFunction.role);
+    backupBoardTopic.grantPublish(lambdaFunction);
     this.reportErrors(lambdaFunction, monitoringTopic);
     return lambdaFunction;
   }
@@ -80,7 +88,7 @@ class TrelloBackupStack extends cdk.Stack {
       code: lambda.Code.asset('./lambdaFunctions/backupBoard'),
       timeout: cdk.Duration.seconds(lambdaFunctionTimeout)
     });
-    boardBackupsBucket.grantPut(lambdaFunction.role);
+    boardBackupsBucket.grantPut(lambdaFunction);
     this.reportErrors(lambdaFunction, monitoringTopic);
     return lambdaFunction;
   }
@@ -95,8 +103,8 @@ class TrelloBackupStack extends cdk.Stack {
       },
       timeout: cdk.Duration.seconds(lambdaFunctionTimeout)
     });
-    boardBackupsBucket.grantRead(lambdaFunction.role);
-    monitoringTopic.grantPublish(lambdaFunction.role);
+    boardBackupsBucket.grantRead(lambdaFunction);
+    monitoringTopic.grantPublish(lambdaFunction);
     this.reportErrors(lambdaFunction, monitoringTopic);
     return lambdaFunction;
   }
