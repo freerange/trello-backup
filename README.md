@@ -2,8 +2,11 @@
 
 ## Requirements
 
+* bash
 * node
 * npm
+* Ruby v2.5
+* bundler
 
 ## Setup
 
