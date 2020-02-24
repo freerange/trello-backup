@@ -2,4 +2,5 @@
 set -e
 cp ../../.env .
 rm -rf vendor/bundle
-bundle install --path vendor/bundle
+bundle config set path 'vendor/bundle'
+bundle install
