@@ -6,6 +6,7 @@ import { Topic } from '@aws-cdk/aws-sns';
 import dotenv = require('dotenv');
 import aet = require('@aws-cdk/aws-events-targets');
 import aca = require('@aws-cdk/aws-cloudwatch-actions');
+import ass = require('@aws-cdk/aws-sns-subscriptions');
 
 dotenv.config();
 
@@ -29,23 +30,23 @@ class TrelloBackupStack extends cdk.Stack {
     const backupBoardFunction
       = this.createBackupBoardFunction(boardBackupsBucket, monitoringTopic);
 
-    backupBoardTopic.subscribeLambda(backupBoardFunction);
+    backupBoardTopic.addSubscription(new ass.LambdaSubscription(backupBoardFunction));
 
     const checkBoardBackupsFunction
       = this.createCheckBoardBackupsFunction(boardBackupsBucket, monitoringTopic);
 
     const monitoringEmailAddress = process.env.TRELLO_BACKUP_MONITORING_EMAIL_ADDRESS;
-    monitoringTopic.subscribeEmail('monitoringTopicEmail', monitoringEmailAddress);
+    monitoringTopic.addSubscription(new ass.EmailSubscription(monitoringEmailAddress));
 
     const scheduleForBackup = process.env.TRELLO_BACKUP_SCHEDULE_FOR_BACKUP;
     const ruleForBackup = new events.Rule(this, 'RuleForBackup', {
-      scheduleExpression: scheduleForBackup
+      schedule: events.Schedule.expression(scheduleForBackup)
     });
     ruleForBackup.addTarget(new aet.LambdaFunction(enumerateBoardsFunction));
 
     const scheduleForCheck = process.env.TRELLO_BACKUP_SCHEDULE_FOR_CHECK;
     const ruleForCheck = new events.Rule(this, 'RuleForCheck', {
-      scheduleExpression: scheduleForCheck
+      schedule: events.Schedule.expression(scheduleForCheck)
     });
     ruleForCheck.addTarget(new aet.LambdaFunction(checkBoardBackupsFunction));
   }
@@ -67,7 +68,7 @@ class TrelloBackupStack extends cdk.Stack {
 
   createBoardBackupsBucket(bucketName : string) : s3.Bucket {
     return new s3.Bucket(this, 'boardBackupsBucket', {
-      bucketName: bucketName,
+      bucketName: cdk.PhysicalName.of(bucketName),
       versioned: true
     });
   }
@@ -102,7 +103,7 @@ class TrelloBackupStack extends cdk.Stack {
 
   reportErrors(lambdaFunction : lambda.Function, monitoringTopic : Topic) : void {
     const metricErrors = lambdaFunction.metricErrors();
-    const alarm = metricErrors.newAlarm(this, `${lambdaFunction.id}Alarm`, {
+    const alarm = metricErrors.createAlarm(this, `${lambdaFunction.node.id}Alarm`, {
       threshold: 1,
       evaluationPeriods: 1
     });
