@@ -37,14 +37,14 @@ class TrelloBackupStack extends cdk.Stack {
     monitoringTopic.subscribeEmail('monitoringTopicEmail', monitoringEmailAddress);
 
     const scheduleForBackup = process.env.TRELLO_BACKUP_SCHEDULE_FOR_BACKUP;
-    const ruleForBackup = new events.EventRule(this, 'RuleForBackup', {
-       scheduleExpression: scheduleForBackup,
+    const ruleForBackup = new events.Rule(this, 'RuleForBackup', {
+      scheduleExpression: scheduleForBackup
     });
     ruleForBackup.addTarget(new aet.LambdaFunction(enumerateBoardsFunction));
 
     const scheduleForCheck = process.env.TRELLO_BACKUP_SCHEDULE_FOR_CHECK;
-    const ruleForCheck = new events.EventRule(this, 'RuleForCheck', {
-       scheduleExpression: scheduleForCheck,
+    const ruleForCheck = new events.Rule(this, 'RuleForCheck', {
+      scheduleExpression: scheduleForCheck
     });
     ruleForCheck.addTarget(new aet.LambdaFunction(checkBoardBackupsFunction));
   }
@@ -105,7 +105,7 @@ class TrelloBackupStack extends cdk.Stack {
       threshold: 1,
       evaluationPeriods: 1
     });
-    alarm.onAlarm(monitoringTopic);
+    alarm.addAlarmAction(monitoringTopic);
   }
 }
 
