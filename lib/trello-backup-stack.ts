@@ -1,12 +1,12 @@
-import cdk = require('@aws-cdk/core');
-import lambda = require('@aws-cdk/aws-lambda');
-import events = require('@aws-cdk/aws-events');
-import s3 = require('@aws-cdk/aws-s3');
+import * as cdk from '@aws-cdk/core';
+import * as lambda from '@aws-cdk/aws-lambda';
+import * as events from '@aws-cdk/aws-events';
+import * as s3 from '@aws-cdk/aws-s3';
 import { Topic } from '@aws-cdk/aws-sns';
-import dotenv = require('dotenv');
-import aet = require('@aws-cdk/aws-events-targets');
-import aca = require('@aws-cdk/aws-cloudwatch-actions');
-import ass = require('@aws-cdk/aws-sns-subscriptions');
+import * as aet from '@aws-cdk/aws-events-targets';
+import * as aca from '@aws-cdk/aws-cloudwatch-actions';
+import * as ass from '@aws-cdk/aws-sns-subscriptions';
+import * as dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -21,9 +21,9 @@ const env = (key: string) => {
 const rubyLambdaRuntime = new lambda.Runtime('ruby2.5');
 const lambdaFunctionTimeout = 30;
 
-class TrelloBackupStack extends cdk.Stack {
-  constructor(parent: cdk.App, id: string, props?: cdk.StackProps) {
-    super(parent, id, props);
+export class TrelloBackupStack extends cdk.Stack {
+  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+    super(scope, id, props);
 
     const monitoringTopic = new Topic(this, 'monitoringTopic');
     const backupBoardTopic = new Topic(this, 'backupBoardTopic');
@@ -118,7 +118,3 @@ class TrelloBackupStack extends cdk.Stack {
     alarm.addAlarmAction(new aca.SnsAction(monitoringTopic));
   }
 }
-
-const app = new cdk.App();
-new TrelloBackupStack(app, 'TrelloBackup');
-app.synth();
