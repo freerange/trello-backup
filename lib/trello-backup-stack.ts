@@ -96,7 +96,8 @@ export class TrelloBackupStack extends cdk.Stack {
       code: lambda.Code.asset('./lambdaFunctions/checkBoardBackups'),
       environment: {
         TRELLO_BACKUP_S3_BUCKET_NAME: boardBackupsBucket.bucketName,
-        TRELLO_BACKUP_MONITORING_TOPIC_ARN: monitoringTopic.topicArn
+        TRELLO_BACKUP_MONITORING_TOPIC_ARN: monitoringTopic.topicArn,
+        TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS: env('TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS')
       },
       timeout: cdk.Duration.seconds(lambdaFunctionTimeout)
     });
