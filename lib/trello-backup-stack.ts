@@ -19,7 +19,7 @@ const env = (key: string) => {
   }
 }
 const rubyLambdaRuntime = new lambda.Runtime('ruby2.5');
-const lambdaFunctionTimeout = 30;
+const lambdaFunctionTimeout = 120;
 
 export class TrelloBackupStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
