@@ -31,9 +31,9 @@ export class TrelloBackupStack extends cdk.Stack {
     const enumerateBoardsFunction
       = this.createEnumerateBoardsFunction(backupBoardTopic, monitoringTopic);
 
-    const bucketName = env('TRELLO_BACKUP_S3_BUCKET_NAME');
-    const boardBackupsBucket
-      = this.createBoardBackupsBucket(bucketName);
+    const boardBackupsBucket = new s3.Bucket(this, 'boardBackupsBucket', {
+      versioned: true
+    });
 
     const backupBoardFunction
       = this.createBackupBoardFunction(boardBackupsBucket, monitoringTopic);
@@ -74,18 +74,14 @@ export class TrelloBackupStack extends cdk.Stack {
     return lambdaFunction;
   }
 
-  createBoardBackupsBucket(bucketName : string) : s3.Bucket {
-    return new s3.Bucket(this, 'boardBackupsBucket', {
-      bucketName: bucketName,
-      versioned: true
-    });
-  }
-
   createBackupBoardFunction(boardBackupsBucket : s3.Bucket, monitoringTopic : Topic) : lambda.Function {
     const lambdaFunction = new lambda.Function(this, 'backupBoard', {
       runtime: rubyLambdaRuntime,
       handler: 'index.handler',
       code: lambda.Code.asset('./lambdaFunctions/backupBoard'),
+      environment: {
+        TRELLO_BACKUP_S3_BUCKET_NAME: boardBackupsBucket.bucketName
+      },
       timeout: cdk.Duration.seconds(lambdaFunctionTimeout)
     });
     boardBackupsBucket.grantPut(lambdaFunction);
@@ -99,6 +95,7 @@ export class TrelloBackupStack extends cdk.Stack {
       handler: 'index.handler',
       code: lambda.Code.asset('./lambdaFunctions/checkBoardBackups'),
       environment: {
+        TRELLO_BACKUP_S3_BUCKET_NAME: boardBackupsBucket.bucketName,
         TRELLO_BACKUP_MONITORING_TOPIC_ARN: monitoringTopic.topicArn
       },
       timeout: cdk.Duration.seconds(lambdaFunctionTimeout)

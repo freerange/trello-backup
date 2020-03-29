@@ -61,7 +61,6 @@ In the top-level `.env` file, set the following environment variables:
 * `TRELLO_BACKUP_SCHEDULE_FOR_BACKUP` - specifies how often/when the backup is performed, e.g. `cron(0 2 * * ? *)` runs daily at 2am (see [Schedule Expressions for Rules][3] for details)
 * `TRELLO_BACKUP_SCHEDULE_FOR_CHECK` - specifies how often/when the post-backup check is performed, e.g. `cron(30 2 * * ? *)` runs daily at 2.30am; should typically be run some time after the backup phase is expected to complete
 * `TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS` - how old a backup is allowed to be when the post-backup check is performed, e.g. `1800` only allows backups to be 30 minutes old; older backups trigger an error
-* `TRELLO_BACKUP_S3_BUCKET_NAME` - the name of the S3 bucket you want to be created and used to save backups
 * `TRELLO_BACKUP_MONITORING_EMAIL_ADDRESS` - the email address where monitoring emails will be sent (an email will be sent on first deployment to ask you to confirm the subscription)
 
 Note: this `.env` file is copied into some/all of the `lambdaFunctions` folders at build time.
