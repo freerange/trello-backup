@@ -16,7 +16,6 @@ GEM
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.0)
     aws-sigv4 (1.0.3)
-    dotenv (2.5.0)
     jmespath (1.4.0)
 
 PLATFORMS
@@ -24,7 +23,6 @@ PLATFORMS
 
 DEPENDENCIES
   aws-sdk-s3
-  dotenv
 
 RUBY VERSION
    ruby 2.5.3p105

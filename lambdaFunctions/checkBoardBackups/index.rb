@@ -1,11 +1,8 @@
 require 'aws-sdk-s3'
 require 'aws-sdk-sns'
 require 'csv'
-require 'dotenv'
 require 'net/http'
 require 'uri'
-
-Dotenv.load
 
 TOPIC_ARN = ENV.fetch('TRELLO_BACKUP_MONITORING_TOPIC_ARN')
 S3_BUCKET_NAME = ENV.fetch('TRELLO_BACKUP_S3_BUCKET_NAME')

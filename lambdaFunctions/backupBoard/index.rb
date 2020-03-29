@@ -1,7 +1,4 @@
 require 'aws-sdk-s3'
-require 'dotenv'
-
-Dotenv.load
 
 S3_BUCKET_NAME = ENV.fetch('TRELLO_BACKUP_S3_BUCKET_NAME')
 
