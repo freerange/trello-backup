@@ -65,6 +65,8 @@ export class TrelloBackupStack extends cdk.Stack {
       handler: 'index.handler',
       code: lambda.Code.asset('./lambdaFunctions/enumerateBoards'),
       environment: {
+        TRELLO_KEY: env('TRELLO_KEY'),
+        TRELLO_TOKEN: env('TRELLO_TOKEN'),
         TRELLO_BACKUP_BACKUP_BOARD_TOPIC_ARN: backupBoardTopic.topicArn
       },
       timeout: cdk.Duration.seconds(lambdaFunctionTimeout)
@@ -80,6 +82,8 @@ export class TrelloBackupStack extends cdk.Stack {
       handler: 'index.handler',
       code: lambda.Code.asset('./lambdaFunctions/backupBoard'),
       environment: {
+        TRELLO_KEY: env('TRELLO_KEY'),
+        TRELLO_TOKEN: env('TRELLO_TOKEN'),
         TRELLO_BACKUP_S3_BUCKET_NAME: boardBackupsBucket.bucketName
       },
       timeout: cdk.Duration.seconds(lambdaFunctionTimeout)
@@ -95,6 +99,8 @@ export class TrelloBackupStack extends cdk.Stack {
       handler: 'index.handler',
       code: lambda.Code.asset('./lambdaFunctions/checkBoardBackups'),
       environment: {
+        TRELLO_KEY: env('TRELLO_KEY'),
+        TRELLO_TOKEN: env('TRELLO_TOKEN'),
         TRELLO_BACKUP_S3_BUCKET_NAME: boardBackupsBucket.bucketName,
         TRELLO_BACKUP_MONITORING_TOPIC_ARN: monitoringTopic.topicArn,
         TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS: env('TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS')
