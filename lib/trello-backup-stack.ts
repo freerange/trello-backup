@@ -6,7 +6,6 @@ import { Topic } from '@aws-cdk/aws-sns';
 import * as aet from '@aws-cdk/aws-events-targets';
 import * as aca from '@aws-cdk/aws-cloudwatch-actions';
 import * as ass from '@aws-cdk/aws-sns-subscriptions';
-import * as sqs from '@aws-cdk/aws-sqs';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -71,7 +70,7 @@ export class TrelloBackupStack extends cdk.Stack {
         TRELLO_BACKUP_BACKUP_BOARD_TOPIC_ARN: backupBoardTopic.topicArn
       },
       timeout: cdk.Duration.seconds(lambdaFunctionTimeout),
-      deadLetterQueue: this.createDeadLetterQueue('enumerateBoards', monitoringTopic)
+      deadLetterQueueEnabled: true
     });
     backupBoardTopic.grantPublish(lambdaFunction);
     this.reportErrors(lambdaFunction, monitoringTopic);
@@ -89,7 +88,7 @@ export class TrelloBackupStack extends cdk.Stack {
         TRELLO_BACKUP_S3_BUCKET_NAME: boardBackupsBucket.bucketName
       },
       timeout: cdk.Duration.seconds(lambdaFunctionTimeout),
-      deadLetterQueue: this.createDeadLetterQueue('backupBoard', monitoringTopic)
+      deadLetterQueueEnabled: true
     });
     boardBackupsBucket.grantPut(lambdaFunction);
     this.reportErrors(lambdaFunction, monitoringTopic);
@@ -109,7 +108,7 @@ export class TrelloBackupStack extends cdk.Stack {
         TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS: env('TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS')
       },
       timeout: cdk.Duration.seconds(lambdaFunctionTimeout),
-      deadLetterQueue: this.createDeadLetterQueue('checkBoardBackups', monitoringTopic)
+      deadLetterQueueEnabled: true
     });
     boardBackupsBucket.grantRead(lambdaFunction);
     monitoringTopic.grantPublish(lambdaFunction);
@@ -124,16 +123,15 @@ export class TrelloBackupStack extends cdk.Stack {
       evaluationPeriods: 1
     });
     alarm.addAlarmAction(new aca.SnsAction(monitoringTopic));
-  }
 
-  createDeadLetterQueue(prefix : string, monitoringTopic : Topic) : sqs.Queue {
-    const dlq = new sqs.Queue(this, `${prefix}DeadLetterQueue`);
-    const metric = dlq.metricNumberOfMessagesSent();
-    const alarm = metric.createAlarm(this, `${prefix}DeadLetterAlarm`, {
-      threshold: 1,
-      evaluationPeriods: 1
-    })
-    alarm.addAlarmAction(new aca.SnsAction(monitoringTopic));
-    return dlq;
+    const dlq = lambdaFunction.deadLetterQueue;
+    if (dlq) {
+      const dlqMetric = dlq.metricNumberOfMessagesSent();
+      const dlqAlarm = dlqMetric.createAlarm(this, `${lambdaFunction.node.id}DeadLetterAlarm`, {
+        threshold: 1,
+        evaluationPeriods: 1
+      })
+      dlqAlarm.addAlarmAction(new aca.SnsAction(monitoringTopic));
+    }
   }
 }
