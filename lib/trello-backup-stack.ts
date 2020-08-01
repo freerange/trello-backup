@@ -117,13 +117,6 @@ export class TrelloBackupStack extends cdk.Stack {
   }
 
   reportErrors(lambdaFunction : lambda.Function, monitoringTopic : Topic) : void {
-    const metricErrors = lambdaFunction.metricErrors();
-    const alarm = metricErrors.createAlarm(this, `${lambdaFunction.node.id}Alarm`, {
-      threshold: 1,
-      evaluationPeriods: 1
-    });
-    alarm.addAlarmAction(new aca.SnsAction(monitoringTopic));
-
     const dlq = lambdaFunction.deadLetterQueue;
     if (dlq) {
       const dlqMetric = dlq.metricNumberOfMessagesSent();
