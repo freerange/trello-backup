@@ -19,7 +19,7 @@ const env = (key: string) => {
   }
 }
 const rubyLambdaRuntime = new lambda.Runtime('ruby2.5');
-const lambdaFunctionTimeout = 120;
+const lambdaFunctionTimeout = cdk.Duration.minutes(5);
 
 export class TrelloBackupStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -69,7 +69,7 @@ export class TrelloBackupStack extends cdk.Stack {
         TRELLO_TOKEN: env('TRELLO_TOKEN'),
         TRELLO_BACKUP_BACKUP_BOARD_TOPIC_ARN: backupBoardTopic.topicArn
       },
-      timeout: cdk.Duration.seconds(lambdaFunctionTimeout),
+      timeout: lambdaFunctionTimeout,
       deadLetterQueueEnabled: true
     });
     backupBoardTopic.grantPublish(lambdaFunction);
@@ -87,7 +87,7 @@ export class TrelloBackupStack extends cdk.Stack {
         TRELLO_TOKEN: env('TRELLO_TOKEN'),
         TRELLO_BACKUP_S3_BUCKET_NAME: boardBackupsBucket.bucketName
       },
-      timeout: cdk.Duration.seconds(lambdaFunctionTimeout),
+      timeout: lambdaFunctionTimeout,
       deadLetterQueueEnabled: true
     });
     boardBackupsBucket.grantPut(lambdaFunction);
@@ -107,7 +107,7 @@ export class TrelloBackupStack extends cdk.Stack {
         TRELLO_BACKUP_MONITORING_TOPIC_ARN: monitoringTopic.topicArn,
         TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS: env('TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS')
       },
-      timeout: cdk.Duration.seconds(lambdaFunctionTimeout),
+      timeout: lambdaFunctionTimeout,
       deadLetterQueueEnabled: true
     });
     boardBackupsBucket.grantRead(lambdaFunction);
