@@ -88,6 +88,7 @@ export class TrelloBackupStack extends cdk.Stack {
         TRELLO_BACKUP_S3_BUCKET_NAME: boardBackupsBucket.bucketName
       },
       timeout: lambdaFunctionTimeout,
+      memorySize: 1024,
       deadLetterQueueEnabled: true
     });
     boardBackupsBucket.grantPut(lambdaFunction);
