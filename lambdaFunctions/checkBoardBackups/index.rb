@@ -41,7 +41,9 @@ def handler(event:, context:)
     end
   end
 
-  unless boards_with_status.all? { |b| b[:success] }
+  if boards_with_status.all? { |b| b[:success] }
+    Net::HTTP.get(URI.parse("#{HEALTHCHECKS_ENDPOINT_URL}"))
+  else
     subject = "Trello Backup: Failure"
     message = ''
     CSV(message, col_sep: "\t") do |csv|
@@ -60,8 +62,6 @@ def handler(event:, context:)
 
     Net::HTTP.get(URI.parse("#{HEALTHCHECKS_ENDPOINT_URL}/fail"))
   end
-
-  Net::HTTP.get(URI.parse("#{HEALTHCHECKS_ENDPOINT_URL}"))
 
   { statusCode: 200, body: 'OK' }
 end
