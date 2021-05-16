@@ -7,7 +7,7 @@ require 'uri'
 TOPIC_ARN = ENV.fetch('TRELLO_BACKUP_MONITORING_TOPIC_ARN')
 S3_BUCKET_NAME = ENV.fetch('TRELLO_BACKUP_S3_BUCKET_NAME')
 OLDEST_ALLOWED_BACKUP_IN_SECONDS = Integer(ENV.fetch('TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS'))
-HEALTHCHECKS_ENDPOINT_URL = 'https://hc-ping.com/60c927ed-9af3-419b-9f4e-6db6369e7d28'.freeze
+HEALTHCHECKS_ENDPOINT_URL = ENV.fetch('HEALTHCHECKS_ENDPOINT_URL')
 
 def handler(event:, context:)
   endpoint = "https://api.trello.com/1/members/me/boards"
