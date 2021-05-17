@@ -106,7 +106,8 @@ export class TrelloBackupStack extends cdk.Stack {
         TRELLO_TOKEN: env('TRELLO_TOKEN'),
         TRELLO_BACKUP_S3_BUCKET_NAME: boardBackupsBucket.bucketName,
         TRELLO_BACKUP_MONITORING_TOPIC_ARN: monitoringTopic.topicArn,
-        TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS: env('TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS')
+        TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS: env('TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS'),
+        HEALTHCHECKS_ENDPOINT_URL: env('HEALTHCHECKS_ENDPOINT_URL')
       },
       timeout: lambdaFunctionTimeout,
       deadLetterQueueEnabled: true
