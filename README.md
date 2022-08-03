@@ -36,7 +36,6 @@ Ensure you're signed in to [Trello][] as a user with access to the relevant boar
 
     # Store the Trello API key in .env
     $ echo "TRELLO_KEY=$TRELLO_KEY" >> .env
-    $ echo "TRELLO_KEY=$TRELLO_KEY" >> .env
 
 ### Getting a Trello API token
 
@@ -51,7 +50,6 @@ Ensure you're signed in to [Trello][] as a user with access to the relevant boar
     $ export TRELLO_TOKEN=`pbpaste`
 
     # Store the Trello token in .env
-    $ echo "TRELLO_TOKEN=$TRELLO_TOKEN" >> .env
     $ echo "TRELLO_TOKEN=$TRELLO_TOKEN" >> .env
 
 ### Environment variables
