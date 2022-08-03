@@ -1,6 +1,8 @@
 require 'aws-sdk-s3'
+require 'date'
 
 S3_BUCKET_NAME = ENV.fetch('TRELLO_BACKUP_S3_BUCKET_NAME')
+CARD_MODIFIED_SINCE = ENV.fetch('TRELLO_BACKUP_CARD_MODIFIED_SINCE')
 
 def handler(event:, context:)
   records = event.fetch('Records', [])
@@ -18,6 +20,7 @@ def handler(event:, context:)
       :actions => :all,
       :actions_limit => 1000,
       :cards => :all,
+      :card_modifiedSince => Date.parse(CARD_MODIFIED_SINCE).iso8601,
       :card_attachments => true,
       :checklists => :all,
       :fields => :all,

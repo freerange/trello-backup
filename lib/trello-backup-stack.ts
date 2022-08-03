@@ -85,6 +85,7 @@ export class TrelloBackupStack extends cdk.Stack {
       environment: {
         TRELLO_KEY: env('TRELLO_KEY'),
         TRELLO_TOKEN: env('TRELLO_TOKEN'),
+        TRELLO_BACKUP_CARD_MODIFIED_SINCE: env('TRELLO_BACKUP_CARD_MODIFIED_SINCE'),
         TRELLO_BACKUP_S3_BUCKET_NAME: boardBackupsBucket.bucketName
       },
       timeout: lambdaFunctionTimeout,
