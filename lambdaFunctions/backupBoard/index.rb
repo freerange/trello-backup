@@ -20,7 +20,7 @@ def handler(event:, context:)
       :actions => :all,
       :actions_limit => 1000,
       :cards => :all,
-      :card_modifiedSince => Date.parse(CARD_MODIFIED_SINCE).iso8601,
+      :card_modifiedSince => DateTime.parse(CARD_MODIFIED_SINCE).iso8601,
       :card_attachments => true,
       :checklists => :all,
       :fields => :all,
