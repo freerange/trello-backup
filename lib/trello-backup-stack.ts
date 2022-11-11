@@ -1,11 +1,12 @@
-import * as cdk from '@aws-cdk/core';
-import * as lambda from '@aws-cdk/aws-lambda';
-import * as events from '@aws-cdk/aws-events';
-import * as s3 from '@aws-cdk/aws-s3';
-import { Topic } from '@aws-cdk/aws-sns';
-import * as aet from '@aws-cdk/aws-events-targets';
-import * as aca from '@aws-cdk/aws-cloudwatch-actions';
-import * as ass from '@aws-cdk/aws-sns-subscriptions';
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as events from 'aws-cdk-lib/aws-events';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import { Topic } from 'aws-cdk-lib/aws-sns';
+import * as aet from 'aws-cdk-lib/aws-events-targets';
+import * as aca from 'aws-cdk-lib/aws-cloudwatch-actions';
+import * as ass from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -22,7 +23,7 @@ const rubyLambdaRuntime = new lambda.Runtime('ruby2.7');
 const lambdaFunctionTimeout = cdk.Duration.minutes(5);
 
 export class TrelloBackupStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     const monitoringTopic = new Topic(this, 'monitoringTopic');
@@ -63,7 +64,7 @@ export class TrelloBackupStack extends cdk.Stack {
     const lambdaFunction = new lambda.Function(this, 'enumerateBoards', {
       runtime: rubyLambdaRuntime,
       handler: 'index.handler',
-      code: lambda.Code.asset('./lambdaFunctions/enumerateBoards'),
+      code: lambda.Code.fromAsset('./lambdaFunctions/enumerateBoards'),
       environment: {
         TRELLO_KEY: env('TRELLO_KEY'),
         TRELLO_TOKEN: env('TRELLO_TOKEN'),
@@ -81,7 +82,7 @@ export class TrelloBackupStack extends cdk.Stack {
     const lambdaFunction = new lambda.Function(this, 'backupBoard', {
       runtime: rubyLambdaRuntime,
       handler: 'index.handler',
-      code: lambda.Code.asset('./lambdaFunctions/backupBoard'),
+      code: lambda.Code.fromAsset('./lambdaFunctions/backupBoard'),
       environment: {
         TRELLO_KEY: env('TRELLO_KEY'),
         TRELLO_TOKEN: env('TRELLO_TOKEN'),
@@ -101,7 +102,7 @@ export class TrelloBackupStack extends cdk.Stack {
     const lambdaFunction = new lambda.Function(this, 'checkBoardBackups', {
       runtime: rubyLambdaRuntime,
       handler: 'index.handler',
-      code: lambda.Code.asset('./lambdaFunctions/checkBoardBackups'),
+      code: lambda.Code.fromAsset('./lambdaFunctions/checkBoardBackups'),
       environment: {
         TRELLO_KEY: env('TRELLO_KEY'),
         TRELLO_TOKEN: env('TRELLO_TOKEN'),
