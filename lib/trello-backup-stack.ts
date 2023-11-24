@@ -19,7 +19,7 @@ const env = (key: string) => {
     throw `Missing env var ${key}`
   }
 }
-const rubyLambdaRuntime = new lambda.Runtime('ruby2.7');
+const rubyLambdaRuntime = lambda.Runtime.RUBY_3_2;
 const lambdaFunctionTimeout = cdk.Duration.minutes(5);
 
 export class TrelloBackupStack extends cdk.Stack {
