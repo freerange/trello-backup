@@ -2,5 +2,5 @@ source 'https://rubygems.org'
 
 ruby '~> 3.2.2'
 
-gem 'aws-sdk-s3'
-gem 'aws-sdk-sns'
+gem 'aws-sdk-s3', '~> 1.30'
+gem 'aws-sdk-sns', '~> 1.9'
