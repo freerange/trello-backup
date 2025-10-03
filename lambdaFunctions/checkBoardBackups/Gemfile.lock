@@ -30,7 +30,7 @@ DEPENDENCIES
   aws-sdk-sns (~> 1.9)
 
 RUBY VERSION
-   ruby 3.2.2p53
+   ruby 3.3.9p170
 
 BUNDLED WITH
-   2.4.22
+   2.5.22
