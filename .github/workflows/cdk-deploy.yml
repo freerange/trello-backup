@@ -1,0 +1,66 @@
+name: CDK Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: cdk-deploy-main
+  cancel-in-progress: false
+
+jobs:
+  cdk-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    env:
+      AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_NAME: ${{ vars.AWS_ROLE_NAME }}
+      TRELLO_KEY: ${{ secrets.TRELLO_KEY }}
+      TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
+      TRELLO_BACKUP_CARD_MODIFIED_SINCE: ${{ vars.TRELLO_BACKUP_CARD_MODIFIED_SINCE }}
+      TRELLO_BACKUP_SCHEDULE_FOR_BACKUP: ${{ vars.TRELLO_BACKUP_SCHEDULE_FOR_BACKUP }}
+      TRELLO_BACKUP_SCHEDULE_FOR_CHECK: ${{ vars.TRELLO_BACKUP_SCHEDULE_FOR_CHECK }}
+      TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS: ${{ vars.TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS }}
+      TRELLO_BACKUP_MONITORING_EMAIL_ADDRESS: ${{ vars.TRELLO_BACKUP_MONITORING_EMAIL_ADDRESS }}
+      HEALTHCHECKS_ENDPOINT_URL: ${{ vars.HEALTHCHECKS_ENDPOINT_URL }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.AWS_ROLE_NAME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Ruby & gems
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Run build
+        run: npm run build
+
+      - name: CDK Deploy
+        run: |
+          npx cdk deploy --all --require-approval never
+
+      - name: Promote main -> production
+        run: |
+          git checkout production
+          git merge main
+          git push origin production
