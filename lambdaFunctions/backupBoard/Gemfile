@@ -3,3 +3,4 @@ source 'https://rubygems.org'
 ruby file: '../../.ruby-version'
 
 gem 'aws-sdk-s3', '~> 1.30'
+gem 'aws-sdk-secretsmanager'

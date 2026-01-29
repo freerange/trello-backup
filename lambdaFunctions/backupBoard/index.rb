@@ -1,10 +1,15 @@
 require 'aws-sdk-s3'
+require 'aws-sdk-secretsmanager'
 require 'date'
 
 S3_BUCKET_NAME = ENV.fetch('TRELLO_BACKUP_S3_BUCKET_NAME')
 CARD_MODIFIED_SINCE = ENV.fetch('TRELLO_BACKUP_CARD_MODIFIED_SINCE')
 
 def handler(event:, context:)
+  secrets_manager = Aws::SecretsManager::Client.new
+  trello_key = secrets_manager.get_secret_value(secret_id: ENV.fetch('TRELLO_KEY_ARN')).secret_string
+  trello_token = secrets_manager.get_secret_value(secret_id: ENV.fetch('TRELLO_TOKEN_ARN')).secret_string
+
   records = event.fetch('Records', [])
   sns_events = records.select { |r| r['EventSource'] == 'aws:sns' }
   sns_events.each do |sns_event|
@@ -15,8 +20,8 @@ def handler(event:, context:)
     endpoint = "https://api.trello.com/1/boards/#{board_id}"
     uri = URI(endpoint)
     uri.query = URI.encode_www_form({
-      :key => ENV.fetch('TRELLO_KEY'),
-      :token => ENV.fetch('TRELLO_TOKEN'),
+      :key => trello_key,
+      :token => trello_token,
       :actions => :all,
       :actions_limit => 1000,
       :cards => :all,

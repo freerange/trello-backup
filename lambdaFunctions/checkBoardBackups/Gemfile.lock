@@ -15,6 +15,9 @@ GEM
       aws-sdk-core (~> 3, >= 3.188.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.6)
+    aws-sdk-secretsmanager (1.89.0)
+      aws-sdk-core (~> 3, >= 3.188.0)
+      aws-sigv4 (~> 1.1)
     aws-sdk-sns (1.69.0)
       aws-sdk-core (~> 3, >= 3.188.0)
       aws-sigv4 (~> 1.1)
@@ -27,6 +30,7 @@ PLATFORMS
 
 DEPENDENCIES
   aws-sdk-s3 (~> 1.30)
+  aws-sdk-secretsmanager
   aws-sdk-sns (~> 1.9)
 
 RUBY VERSION
