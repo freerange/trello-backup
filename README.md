@@ -54,8 +54,8 @@ Ensure you're signed in to [Trello][] as a user with access to the relevant boar
     # Temporarily store the Trello API key in an environment variable
     $ export TRELLO_KEY=`pbpaste`
 
-    # Store the Trello API key in .env
-    $ echo "TRELLO_KEY=$TRELLO_KEY" >> .env
+    # Store the Trello API key in AWS Secrets Manager
+    $ aws secretsmanager create-secret --name /trello-backup/TRELLO_KEY --secret-string "$TRELLO_KEY"
 
 ### Getting a Trello API token
 
@@ -71,15 +71,18 @@ Ensure you're signed in to [Trello][] as a user with access to the relevant boar
     # Temporarily store the Trello token in an environment variable
     $ export TRELLO_TOKEN=`pbpaste`
 
-    # Store the Trello token in .env
-    $ echo "TRELLO_TOKEN=$TRELLO_TOKEN" >> .env
+    # Store the Trello API token in AWS Secrets Manager
+    $ aws secretsmanager create-secret --name /trello-backup/TRELLO_TOKEN --secret-string "$TRELLO_TOKEN"
 
 ### Environment variables
 
+The following are injected into the AWS Lambda functions from the AWS Secrets Manager as environment variables:
+
+* `TRELLO_KEY` - secret used in all 3 Lambda functions to authenticate with Trello
+* `TRELLO_TOKEN` - secret used in all 3 Lambda functions to authenticate with Trello
+
 In the `.env` file, set the following environment variables:
 
-* `TRELLO_TOKEN` - used in all 3 Lambda functions to authenticate with Trello
-* `TRELLO_KEY` - used in all 3 Lambda functions to authenticate with Trello
 * `TRELLO_BACKUP_CARD_MODIFIED_SINCE` - used in the backupBoard function to query Trello for cards modified since a certain date
 * `TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS` - used by checkBoardBackups to determine whether the latest backup is recent enough e.g. `1800` only allows backups to be 30 minutes old; older backups trigger an error
 * `HEALTHCHECKS_ENDPOINT_URL` - used by checkBoardBackups function to record the success/failure of the function
@@ -92,8 +95,6 @@ In the `.env` file, set the following environment variables:
 If you're modifying an existing CDK application then you'll want to retrieve the values that are being used in production. You can use the aws cli to populate your .env with the production values:
 
 ```
-echo "TRELLO_TOKEN=$(aws lambda list-functions | jq '.Functions | .[] | select(.FunctionName | test("TrelloBackupStack-checkBoardBackups")) | .Environment | .Variables | .TRELLO_TOKEN')" >> .env
-echo "TRELLO_KEY=$(aws lambda list-functions | jq '.Functions | .[] | select(.FunctionName | test("TrelloBackupStack-checkBoardBackups")) | .Environment | .Variables | .TRELLO_KEY')" >> .env
 echo "TRELLO_BACKUP_CARD_MODIFIED_SINCE=$(aws lambda list-functions | jq '.Functions | .[] | select(.FunctionName | test("TrelloBackupStack-backupBoard")) | .Environment | .Variables | .TRELLO_BACKUP_CARD_MODIFIED_SINCE')" >> .env
 echo "TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS=$(aws lambda list-functions | jq '.Functions | .[] | select(.FunctionName | test("TrelloBackupStack-checkBoardBackups")) | .Environment | .Variables | .TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS')" >> .env
 echo "HEALTHCHECKS_ENDPOINT_URL=$(aws lambda list-functions | jq '.Functions | .[] | select(.FunctionName | test("TrelloBackupStack-checkBoardBackups")) | .Environment | .Variables | .HEALTHCHECKS_ENDPOINT_URL')" >> .env

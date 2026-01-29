@@ -7,6 +7,7 @@ import { Topic } from 'aws-cdk-lib/aws-sns';
 import * as aet from 'aws-cdk-lib/aws-events-targets';
 import * as aca from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as ass from 'aws-cdk-lib/aws-sns-subscriptions';
+import * as sm from 'aws-cdk-lib/aws-secretsmanager';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -22,6 +23,11 @@ const env = (key: string) => {
 const rubyLambdaRuntime = lambda.Runtime.RUBY_3_3;
 const lambdaFunctionTimeout = cdk.Duration.minutes(5);
 
+interface TrelloCredentials {
+  key: sm.ISecret;
+  token: sm.ISecret;
+};
+
 export class TrelloBackupStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -29,20 +35,25 @@ export class TrelloBackupStack extends cdk.Stack {
     const monitoringTopic = new Topic(this, 'monitoringTopic');
     const backupBoardTopic = new Topic(this, 'backupBoardTopic');
 
+    const trelloCredentials : TrelloCredentials = {
+      key: sm.Secret.fromSecretNameV2(this, 'trelloKey', '/trello-backup/TRELLO_KEY'),
+      token: sm.Secret.fromSecretNameV2(this, 'trelloToken', '/trello-backup/TRELLO_TOKEN')
+    };
+
     const enumerateBoardsFunction
-      = this.createEnumerateBoardsFunction(backupBoardTopic, monitoringTopic);
+      = this.createEnumerateBoardsFunction(backupBoardTopic, monitoringTopic, trelloCredentials);
 
     const boardBackupsBucket = new s3.Bucket(this, 'boardBackupsBucket', {
       versioned: true
     });
 
     const backupBoardFunction
-      = this.createBackupBoardFunction(boardBackupsBucket, monitoringTopic);
+      = this.createBackupBoardFunction(boardBackupsBucket, monitoringTopic, trelloCredentials);
 
     backupBoardTopic.addSubscription(new ass.LambdaSubscription(backupBoardFunction));
 
     const checkBoardBackupsFunction
-      = this.createCheckBoardBackupsFunction(boardBackupsBucket, monitoringTopic);
+      = this.createCheckBoardBackupsFunction(boardBackupsBucket, monitoringTopic, trelloCredentials);
 
     const monitoringEmailAddress = env('TRELLO_BACKUP_MONITORING_EMAIL_ADDRESS');
     monitoringTopic.addSubscription(new ass.EmailSubscription(monitoringEmailAddress));
@@ -60,32 +71,34 @@ export class TrelloBackupStack extends cdk.Stack {
     ruleForCheck.addTarget(new aet.LambdaFunction(checkBoardBackupsFunction));
   }
 
-  createEnumerateBoardsFunction(backupBoardTopic : Topic, monitoringTopic : Topic) : lambda.Function {
+  createEnumerateBoardsFunction(backupBoardTopic: Topic, monitoringTopic: Topic, trelloCredentials : TrelloCredentials): lambda.Function {
     const lambdaFunction = new lambda.Function(this, 'enumerateBoards', {
       runtime: rubyLambdaRuntime,
       handler: 'index.handler',
       code: lambda.Code.fromAsset('./lambdaFunctions/enumerateBoards'),
       environment: {
-        TRELLO_KEY: env('TRELLO_KEY'),
-        TRELLO_TOKEN: env('TRELLO_TOKEN'),
+        TRELLO_KEY_ARN: trelloCredentials.key.secretArn,
+        TRELLO_TOKEN_ARN: trelloCredentials.token.secretArn,
         TRELLO_BACKUP_BACKUP_BOARD_TOPIC_ARN: backupBoardTopic.topicArn
       },
       timeout: lambdaFunctionTimeout,
       deadLetterQueueEnabled: true
     });
     backupBoardTopic.grantPublish(lambdaFunction);
+    trelloCredentials.key.grantRead(lambdaFunction);
+    trelloCredentials.token.grantRead(lambdaFunction);
     this.reportErrors(lambdaFunction, monitoringTopic);
     return lambdaFunction;
   }
 
-  createBackupBoardFunction(boardBackupsBucket : s3.Bucket, monitoringTopic : Topic) : lambda.Function {
+  createBackupBoardFunction(boardBackupsBucket : s3.Bucket, monitoringTopic : Topic, trelloCredentials : TrelloCredentials) : lambda.Function {
     const lambdaFunction = new lambda.Function(this, 'backupBoard', {
       runtime: rubyLambdaRuntime,
       handler: 'index.handler',
       code: lambda.Code.fromAsset('./lambdaFunctions/backupBoard'),
       environment: {
-        TRELLO_KEY: env('TRELLO_KEY'),
-        TRELLO_TOKEN: env('TRELLO_TOKEN'),
+        TRELLO_KEY_ARN: trelloCredentials.key.secretArn,
+        TRELLO_TOKEN_ARN: trelloCredentials.token.secretArn,
         TRELLO_BACKUP_CARD_MODIFIED_SINCE: env('TRELLO_BACKUP_CARD_MODIFIED_SINCE'),
         TRELLO_BACKUP_S3_BUCKET_NAME: boardBackupsBucket.bucketName
       },
@@ -94,18 +107,20 @@ export class TrelloBackupStack extends cdk.Stack {
       deadLetterQueueEnabled: true
     });
     boardBackupsBucket.grantPut(lambdaFunction);
+    trelloCredentials.key.grantRead(lambdaFunction);
+    trelloCredentials.token.grantRead(lambdaFunction);
     this.reportErrors(lambdaFunction, monitoringTopic);
     return lambdaFunction;
   }
 
-  createCheckBoardBackupsFunction(boardBackupsBucket : s3.Bucket, monitoringTopic : Topic) : lambda.Function {
+  createCheckBoardBackupsFunction(boardBackupsBucket : s3.Bucket, monitoringTopic : Topic, trelloCredentials: TrelloCredentials) : lambda.Function {
     const lambdaFunction = new lambda.Function(this, 'checkBoardBackups', {
       runtime: rubyLambdaRuntime,
       handler: 'index.handler',
       code: lambda.Code.fromAsset('./lambdaFunctions/checkBoardBackups'),
       environment: {
-        TRELLO_KEY: env('TRELLO_KEY'),
-        TRELLO_TOKEN: env('TRELLO_TOKEN'),
+        TRELLO_KEY_ARN: trelloCredentials.key.secretArn,
+        TRELLO_TOKEN_ARN: trelloCredentials.token.secretArn,
         TRELLO_BACKUP_S3_BUCKET_NAME: boardBackupsBucket.bucketName,
         TRELLO_BACKUP_MONITORING_TOPIC_ARN: monitoringTopic.topicArn,
         TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS: env('TRELLO_BACKUP_OLDEST_ALLOWED_BACKUP_IN_SECONDS'),
@@ -115,6 +130,8 @@ export class TrelloBackupStack extends cdk.Stack {
       deadLetterQueueEnabled: true
     });
     boardBackupsBucket.grantRead(lambdaFunction);
+    trelloCredentials.key.grantRead(lambdaFunction);
+    trelloCredentials.token.grantRead(lambdaFunction);
     monitoringTopic.grantPublish(lambdaFunction);
     this.reportErrors(lambdaFunction, monitoringTopic);
     return lambdaFunction;

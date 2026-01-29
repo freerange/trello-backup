@@ -1,4 +1,5 @@
 require 'aws-sdk-s3'
+require 'aws-sdk-secretsmanager'
 require 'aws-sdk-sns'
 require 'csv'
 require 'net/http'
@@ -10,11 +11,15 @@ OLDEST_ALLOWED_BACKUP_IN_SECONDS = Integer(ENV.fetch('TRELLO_BACKUP_OLDEST_ALLOW
 HEALTHCHECKS_ENDPOINT_URL = ENV.fetch('HEALTHCHECKS_ENDPOINT_URL')
 
 def handler(event:, context:)
+  secrets_manager = Aws::SecretsManager::Client.new
+  trello_key = secrets_manager.get_secret_value(secret_id: ENV.fetch('TRELLO_KEY_ARN')).secret_string
+  trello_token = secrets_manager.get_secret_value(secret_id: ENV.fetch('TRELLO_TOKEN_ARN')).secret_string
+
   endpoint = "https://api.trello.com/1/members/me/boards"
   uri = URI(endpoint)
   uri.query = URI.encode_www_form({
-    :key => ENV.fetch('TRELLO_KEY'),
-    :token => ENV.fetch('TRELLO_TOKEN'),
+    :key => trello_key,
+    :token => trello_token,
     :fields => 'id,name'
   })
   response = Net::HTTP.get_response(uri)
