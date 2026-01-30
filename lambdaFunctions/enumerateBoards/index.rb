@@ -7,9 +7,6 @@ Dotenv.load
 TOPIC_ARN = ENV.fetch('TRELLO_BACKUP_BACKUP_BOARD_TOPIC_ARN')
 
 def handler(event:, context:)
-  puts ['TRELLO_KEY_ARN', ENV.fetch('TRELLO_KEY_ARN')]
-  puts ['TRELLO_TOKEN_ARN', ENV.fetch('TRELLO_TOKEN_ARN')]
-
   secrets_manager = Aws::SecretsManager::Client.new
   trello_key = secrets_manager.get_secret_value(secret_id: ENV.fetch('TRELLO_KEY_ARN')).secret_string
   trello_token = secrets_manager.get_secret_value(secret_id: ENV.fetch('TRELLO_TOKEN_ARN')).secret_string
