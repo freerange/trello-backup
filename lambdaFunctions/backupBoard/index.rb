@@ -44,8 +44,14 @@ def handler(event:, context:)
     puts "#{board_id} - OK"
 
     puts "#{board_id} - Writing data for #{board_name} board to S3..."
-    object = Aws::S3::Object.new(S3_BUCKET_NAME, "#{board_id}.json")
-    object.upload_stream(content_type: 'application/json') { |stream| stream << json }
+    tm = Aws::S3::TransferManager.new
+    tm.upload_stream(
+      bucket: S3_BUCKET_NAME,
+      key: "#{board_id}.json",
+      content_type: 'application/json'
+    ) do |write_stream|
+      write_stream << json
+    end
     puts "#{board_id} - OK"
   end
 
