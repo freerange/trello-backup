@@ -45,7 +45,7 @@ jobs:
         run: npm ci
 
       - name: Install Ruby & gems
-        uses: ruby/setup-ruby@v1.307.0
+        uses: ruby/setup-ruby@v1.308.0
         with:
           bundler-cache: true
 
