@@ -102,6 +102,7 @@ export class TrelloBackupStack extends cdk.Stack {
         TRELLO_BACKUP_CARD_MODIFIED_SINCE: env('TRELLO_BACKUP_CARD_MODIFIED_SINCE'),
         TRELLO_BACKUP_S3_BUCKET_NAME: boardBackupsBucket.bucketName
       },
+      reservedConcurrentExecutions: 1,
       timeout: lambdaFunctionTimeout,
       memorySize: 1024,
       deadLetterQueueEnabled: true
