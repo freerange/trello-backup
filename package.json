@@ -14,14 +14,15 @@
   "author": "Go Free Range Ltd",
   "license": "MIT",
   "devDependencies": {
+    "@swc/core": "^1.15.0",
     "@types/node": "^26.6.1",
     "aws-cdk": "2.1141.0",
-    "ts-node": "^10.9.2",
-    "typescript": "~6.0.3"
+    "tsx": "^4.23.0",
+    "typescript": "~7.0.2"
   },
   "dependencies": {
-    "aws-cdk-lib": "2.269.0",
-    "constructs": "^10.8.1",
+    "aws-cdk-lib": "^2.268.0",
+    "constructs": "^10.5.0",
     "dotenv": "^17.4.2"
   }
 }
